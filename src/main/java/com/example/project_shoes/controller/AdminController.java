@@ -27,4 +27,9 @@ public class AdminController {
     public String ordersDetail() {
         return "admin/orders/detail";
     }
+    
+    @GetMapping("/customers/list")
+    public String customersList() {
+        return "admin/customers/list";
+    }
 } 
