@@ -17,7 +17,7 @@ public class ProductDTO {
     private LocalDateTime createdDate;
     private String description;
     private Long idCategory;
-    private String categoryName;
+    private String categoryName; // Tên danh mục, không lưu trữ trong cơ sở dữ liệu
     private String image;
     private Boolean isActive;
     private Boolean isDelete;

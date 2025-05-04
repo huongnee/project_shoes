@@ -113,13 +113,28 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Delete confirmation
+    // Delete product confirmation
     const deleteButtons = document.querySelectorAll('.btn-delete');
     deleteButtons.forEach(button => {
         button.addEventListener('click', function(e) {
-            if (!confirm('Bạn có chắc chắn muốn xóa mục này?')) {
-                e.preventDefault();
-                return false;
+            const productId = this.getAttribute('data-id');
+            if (confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                // Gửi yêu cầu xóa sản phẩm
+                fetch(`/api/products/${productId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // Reload trang sau khi xóa thành công
+                        window.location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra khi xóa sản phẩm!');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra khi xóa sản phẩm!');
+                });
             }
         });
     });

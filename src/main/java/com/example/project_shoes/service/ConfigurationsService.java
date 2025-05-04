@@ -1,7 +1,6 @@
 package com.example.project_shoes.service;
 
 import com.example.project_shoes.dto.ConfigurationsDTO;
-
 import java.util.List;
 
 public interface ConfigurationsService {
@@ -11,4 +10,6 @@ public interface ConfigurationsService {
     ConfigurationsDTO update(ConfigurationsDTO configurationsDTO);
     boolean delete(Long id);
     List<ConfigurationsDTO> findByName(String name);
+    
+    List<ConfigurationsDTO> findAllActive();
 } 

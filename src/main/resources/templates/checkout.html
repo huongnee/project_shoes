@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán - Shop Giày</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/styles.css}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="bg-dark text-white py-3">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <h1 class="mb-0"><a th:href="@{/}" class="text-white text-decoration-none">Shop Giày</a></h1>
+                </div>
+                <div class="col-md-6">
+                    <form th:action="@{/search}" method="get" class="d-flex">
+                        <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm sản phẩm...">
+                        <button type="submit" class="btn btn-primary ms-2"><i class="fas fa-search"></i></button>
+                    </form>
+                </div>
+                <div class="col-md-3 text-end">
+                    <a th:href="@{/cart}" class="btn btn-outline-light position-relative me-2">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span th:if="${session.cart != null and !session.cart.isEmpty()}" 
+                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                            <span th:text="${session.cart.size()}"></span>
+                        </span>
+                    </a>
+                    <a th:if="${session.customerId == null}" th:href="@{/login}" class="btn btn-outline-light">
+                        <i class="fas fa-user"></i> Đăng nhập
+                    </a>
+                    <div th:if="${session.customerId != null}" class="dropdown d-inline">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> Tài khoản
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" th:href="@{/my-orders}">Đơn hàng của tôi</a></li>
+                            <li><a class="dropdown-item" th:href="@{/profile}">Hồ sơ</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" th:href="@{/logout}">Đăng xuất</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/}">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/products}">Tất cả sản phẩm</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Breadcrumb -->
+    <div class="container py-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/cart}">Giỏ hàng</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Thanh toán</li>
+            </ol>
+        </nav>
+    </div>
+
+    <!-- Checkout Content -->
+    <section class="py-5">
+        <div class="container">
+            <h1 class="mb-4">Thanh toán</h1>
+            
+            <div th:if="${message}" class="alert alert-success mb-4" role="alert">
+                <span th:text="${message}">Thông báo thành công</span>
+            </div>
+            
+            <div th:if="${error}" class="alert alert-danger mb-4" role="alert">
+                <span th:text="${error}">Thông báo lỗi</span>
+            </div>
+            
+            <form th:action="@{/checkout/place-order}" method="post" class="needs-validation" novalidate>
+                <div class="row">
+                    <!-- Billing Information -->
+                    <div class="col-lg-8">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Thông tin thanh toán</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <label for="fullName" class="form-label">Họ và tên <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="fullName" name="nameReceiver" 
+                                               th:value="${customerInfo != null ? customerInfo.name : ''}" required>
+                                        <div class="invalid-feedback">
+                                            Vui lòng nhập họ và tên.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                                        <input type="email" class="form-control" id="email" name="email" 
+                                               th:value="${customerInfo != null ? customerInfo.email : ''}" required>
+                                        <div class="invalid-feedback">
+                                            Vui lòng nhập email hợp lệ.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <label for="phone" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" 
+                                               th:value="${customerInfo != null ? customerInfo.phone : ''}" required>
+                                        <div class="invalid-feedback">
+                                            Vui lòng nhập số điện thoại.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label for="address" class="form-label">Địa chỉ nhận hàng <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="address" name="address" 
+                                               th:value="${customerInfo != null ? customerInfo.address : ''}" required>
+                                        <div class="invalid-feedback">
+                                            Vui lòng nhập địa chỉ nhận hàng.
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-12">
+                                        <label for="notes" class="form-label">Ghi chú đơn hàng</label>
+                                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Methods -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">Phương thức thanh toán</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div class="form-check" th:each="paymentMethod : ${paymentMethods}">
+                                            <input class="form-check-input" type="radio" name="idPayment" 
+                                                   th:id="'payment-' + ${paymentMethod.id}" 
+                                                   th:value="${paymentMethod.id}" 
+                                                   th:checked="${paymentMethodStat.index == 0}">
+                                            <label class="form-check-label" th:for="'payment-' + ${paymentMethod.id}" 
+                                                   th:text="${paymentMethod.name}">
+                                                Thanh toán khi nhận hàng (COD)
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Fallback nếu không có dữ liệu -->
+                                        <div class="form-check" th:if="${paymentMethods == null or paymentMethods.isEmpty()}">
+                                            <input class="form-check-input" type="radio" name="idPayment" 
+                                                   id="payment-1" value="1" checked>
+                                            <label class="form-check-label" for="payment-1">
+                                                Thanh toán khi nhận hàng (COD)
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Shipping Methods -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Phương thức vận chuyển</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-12">
+                                        <div class="form-check" th:each="transportMethod : ${transportMethods}">
+                                            <input class="form-check-input" type="radio" name="idTransport" 
+                                                   th:id="'transport-' + ${transportMethod.id}" 
+                                                   th:value="${transportMethod.id}" 
+                                                   th:checked="${transportMethodStat.index == 0}">
+                                            <label class="form-check-label" th:for="'transport-' + ${transportMethod.id}" 
+                                                   th:text="${transportMethod.name}">
+                                                Giao hàng tiêu chuẩn
+                                            </label>
+                                        </div>
+                                        
+                                        <!-- Fallback nếu không có dữ liệu -->
+                                        <div class="form-check" th:if="${transportMethods == null or transportMethods.isEmpty()}">
+                                            <input class="form-check-input" type="radio" name="idTransport" 
+                                                   id="transport-1" value="1" checked>
+                                            <label class="form-check-label" for="transport-1">
+                                                Giao hàng tiêu chuẩn
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Order Summary -->
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Tóm tắt đơn hàng</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table">
+                                        <tbody>
+                                            <tr th:each="item : ${cartItems}">
+                                                <td class="border-0">
+                                                    <div class="d-flex align-items-center">
+                                                        <img th:if="${item.image != null}" th:src="@{/static/images/products/{img}(img=${item.image})}" 
+                                                             class="img-fluid rounded" style="width: 50px; height: 50px; object-fit: cover;" alt="Product">
+                                                        <img th:if="${item.image == null}" th:src="@{/static/images/no-image.jpg}" 
+                                                             class="img-fluid rounded" style="width: 50px; height: 50px; object-fit: cover;" alt="No Image">
+                                                        <div class="ms-2">
+                                                            <small class="text-muted text-nowrap" th:text="${item.name}">Tên sản phẩm</small>
+                                                            <br>
+                                                            <small class="text-muted" th:text="'SL: ' + ${item.quantity}">SL: 1</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-end border-0">
+                                                    <small th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                                        100,000 VNĐ
+                                                    </small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        <tfoot>
+                                            <tr>
+                                                <td>Tạm tính:</td>
+                                                <td class="text-end" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                                    300,000 VNĐ
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Phí vận chuyển:</td>
+                                                <td class="text-end">Miễn phí</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-bold">Tổng cộng:</td>
+                                                <td class="text-end fw-bold text-danger" th:text="${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                                    300,000 VNĐ
+                                                </td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                                
+                                <input type="hidden" name="totalMoney" th:value="${total}">
+                                <input type="hidden" name="idCustomer" th:value="${session.customerId}">
+                                
+                                <button type="submit" class="btn btn-primary w-100">Đặt hàng</button>
+                                <a th:href="@{/cart}" class="btn btn-outline-secondary w-100 mt-2">Quay lại giỏ hàng</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h5>Thông tin liên hệ</h5>
+                    <p>Địa chỉ: 123 Đường ABC, Quận XYZ, TP. HCM</p>
+                    <p>Email: contact@shopgiay.com</p>
+                    <p>Hotline: 0123 456 789</p>
+                </div>
+                <div class="col-md-4">
+                    <h5>Hỗ trợ khách hàng</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-white">Chính sách đổi trả</a></li>
+                        <li><a href="#" class="text-white">Hướng dẫn mua hàng</a></li>
+                        <li><a href="#" class="text-white">Phương thức thanh toán</a></li>
+                        <li><a href="#" class="text-white">Phương thức vận chuyển</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h5>Kết nối với chúng tôi</h5>
+                    <div class="social-links">
+                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f fa-lg"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-instagram fa-lg"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-twitter fa-lg"></i></a>
+                        <a href="#" class="text-white me-2"><i class="fab fa-youtube fa-lg"></i></a>
+                    </div>
+                </div>
+            </div>
+            <hr>
+            <div class="text-center">
+                <p>&copy; 2023 Shop Giày. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script th:src="@{/js/main.js}"></script>
+    <script>
+        // Form validation
+        (function () {
+            'use strict'
+            var forms = document.querySelectorAll('.needs-validation')
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+</body>
+</html> 

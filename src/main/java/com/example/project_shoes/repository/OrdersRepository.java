@@ -8,8 +8,8 @@ import java.util.List;
 
 @Repository
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
+    List<Orders> findByIdCustomerAndIsDeleteFalse(Long idCustomer);
     List<Orders> findByIsDeleteFalse();
     Orders findByIdAndIsDeleteFalse(Long id);
-    List<Orders> findByIdCustomerAndIsDeleteFalse(Long idCustomer);
     Orders findByiOrdersAndIsDeleteFalse(String iOrders);
 } 

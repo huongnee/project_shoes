@@ -1,7 +1,6 @@
 package com.example.project_shoes.service;
 
 import com.example.project_shoes.dto.CategoryDTO;
-
 import java.util.List;
 
 public interface CategoryService {
@@ -11,4 +10,8 @@ public interface CategoryService {
     CategoryDTO update(CategoryDTO categoryDTO);
     boolean delete(Long id);
     List<CategoryDTO> findByName(String name);
+    
+    List<CategoryDTO> findAllActive();
+    List<CategoryDTO> findParentCategories();
+    List<CategoryDTO> findSubCategories(Long parentId);
 } 

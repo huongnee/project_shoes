@@ -26,7 +26,7 @@ public class Orders {
     @Column(name = "EMAIL")
     private String email;
 
-    @Column(name = "IORDERS", nullable = false, length = 10)
+    @Column(name = "IORDERS", nullable = false, length = 20)
     private String iOrders;
 
     @Column(name = "IDCUSTOMER", nullable = false)
@@ -67,6 +67,9 @@ public class Orders {
 
     @Column(name = "PHONE")
     private String phone;
+
+    @Column(name = "STATUS", nullable = false)
+    private Integer status; // 0: Chờ xác nhận, 1: Đã xác nhận, 2: Đang giao hàng, 3: Đã giao hàng, 4: Đã hủy
 
     @Column(name = "TOTAL_MONEY", nullable = false)
     private BigDecimal totalMoney;

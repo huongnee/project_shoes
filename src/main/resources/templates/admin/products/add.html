@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Sản Phẩm - Shoes Store</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/static/css/admin.css}">
+    <style>
+        .ck-editor__editable {
+            min-height: 200px;
+        }
+        .image-preview {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .image-preview-container {
+            position: relative;
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .image-preview-delete {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255,255,255,0.7);
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: #f44336;
+        }
+        .image-preview-delete:hover {
+            background: rgba(255,255,255,1);
+        }
+        .dropzone {
+            border: 2px dashed #ddd;
+            border-radius: 5px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .dropzone:hover {
+            border-color: #3f51b5;
+        }
+        .dropzone i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 15px;
+        }
+        .variant-row {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar  -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3>SHOES ADMIN</h3>
+            </div>
+
+            <ul class="list-unstyled components">
+                <li>
+                    <a th:href="@{/admin/index}"><i class="fas fa-home"></i> Trang chủ</a>
+                </li>
+                <li class="active">
+                    <a href="#productSubmenu" data-bs-toggle="collapse" aria-expanded="true" class="dropdown-toggle">
+                        <i class="fas fa-box"></i> Sản phẩm
+                    </a>
+                    <ul class="collapse show list-unstyled" id="productSubmenu">
+                        <li><a th:href="@{/admin/products/list}"><i class="fas fa-list"></i> Danh sách sản phẩm</a></li>
+                        <li class="active"><a th:href="@{/admin/products/add}"><i class="fas fa-plus"></i> Thêm sản phẩm</a></li>
+                        <li><a th:href="@{/admin/products/categories}"><i class="fas fa-tags"></i> Danh mục</a></li>
+                        <li><a th:href="@{/admin/products/config}"><i class="fas fa-cogs"></i> Cấu hình</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#orderSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                        <i class="fas fa-shopping-cart"></i> Đơn hàng
+                    </a>
+                    <ul class="collapse list-unstyled" id="orderSubmenu">
+                        <li><a th:href="@{/admin/orders/list}"><i class="fas fa-list"></i> Danh sách đơn hàng</a></li>
+                        <li><a th:href="@{/admin/orders/shipping}"><i class="fas fa-truck"></i> Vận chuyển</a></li>
+                        <li><a th:href="@{/admin/orders/payment}"><i class="fas fa-money-bill"></i> Thanh toán</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#customerSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                        <i class="fas fa-users"></i> Khách hàng
+                    </a>
+                    <ul class="collapse list-unstyled" id="customerSubmenu">
+                        <li><a th:href="@{/admin/customers/list}"><i class="fas fa-list"></i> Danh sách khách hàng</a></li>
+                        <li><a th:href="@{/admin/customers/add}"><i class="fas fa-user-plus"></i> Thêm khách hàng</a></li>
+                        <li><a th:href="@{/admin/customers/categories}"><i class="fas fa-user-tag"></i> Phân loại khách hàng</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="#newsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                        <i class="fas fa-newspaper"></i> Tin tức
+                    </a>
+                    <ul class="collapse list-unstyled" id="newsSubmenu">
+                        <li><a th:href="@{/admin/news/list}"><i class="fas fa-list"></i> Danh sách tin tức</a></li>
+                        <li><a th:href="@{/admin/news/add}"><i class="fas fa-plus"></i> Thêm tin tức</a></li>
+                        <li><a th:href="@{/admin/news/categories}"><i class="fas fa-tags"></i> Danh mục tin tức</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a th:href="@{/admin/statistics}"><i class="fas fa-chart-bar"></i> Thống kê</a>
+                </li>
+                <li>
+                    <a href="#settingSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
+                        <i class="fas fa-cog"></i> Cài đặt
+                    </a>
+                    <ul class="collapse list-unstyled" id="settingSubmenu">
+                        <li><a th:href="@{/admin/settings/admins}"><i class="fas fa-user-shield"></i> Quản trị viên</a></li>
+                        <li><a th:href="@{/admin/settings/permissions}"><i class="fas fa-lock"></i> Phân quyền</a></li>
+                        <li><a th:href="@{/admin/settings/website}"><i class="fas fa-globe"></i> Cài đặt trang web</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+
+        <!-- Page Content  -->
+        <div class="main-content">
+            <nav class="navbar navbar-expand-lg">
+                <div class="container-fluid">
+                    <button type="button" id="sidebarCollapse" class="btn btn-primary">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="nav navbar-nav ms-auto">
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><i class="fas fa-bell"></i> <span class="badge bg-danger">5</span></a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="#"><i class="fas fa-envelope"></i> <span class="badge bg-primary">3</span></a>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <img src="https://via.placeholder.com/30" class="rounded-circle me-2" alt="Admin">
+                                    Admin
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Hồ sơ</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Cài đặt</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <a th:href="@{/admin/products/list}" class="btn btn-outline-primary mb-3"><i class="fas fa-arrow-left"></i> Quay lại danh sách</a>
+                        <h2 class="mb-4">Thêm sản phẩm mới</h2>
+                    </div>
+                </div>
+                
+                <form id="productForm" th:action="@{/admin/products/add}" method="post" th:object="${product}" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Thông tin cơ bản
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="productName" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="productName" name="name" th:field="*{name}" required>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="sku" class="form-label">Mã sản phẩm (SKU)</label>
+                                            <input type="text" class="form-control" id="sku" name="sku">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="barcode" class="form-label">Mã vạch</label>
+                                            <input type="text" class="form-control" id="barcode" name="barcode">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="shortDescription" class="form-label">Mô tả ngắn</label>
+                                        <textarea class="form-control" id="shortDescription" name="notes" th:field="*{notes}" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Mô tả chi tiết</label>
+                                        <textarea class="form-control" id="description" name="description" th:field="*{description}" rows="6"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Hình ảnh sản phẩm
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <div class="dropzone" id="imageUpload">
+                                            <i class="fas fa-cloud-upload-alt"></i>
+                                            <p>Kéo thả hình ảnh vào đây hoặc nhấp để tải lên</p>
+                                            <small class="text-muted">Tối đa 10 hình ảnh. Định dạng: JPG, PNG. Kích thước tối đa: 2MB mỗi ảnh.</small>
+                                        </div>
+                                    </div>
+                                    <div class="mt-3" id="imagePreviewContainer">
+                                        <div class="image-preview-container">
+                                            <img src="https://via.placeholder.com/150" class="image-preview" alt="Product preview">
+                                            <div class="image-preview-delete"><i class="fas fa-times"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Biến thể sản phẩm
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-4">
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" value="" id="hasSize">
+                                                <label class="form-check-label" for="hasSize">
+                                                    Sản phẩm có nhiều kích cỡ
+                                                </label>
+                                            </div>
+                                            <select class="form-select" id="sizeOptions" multiple disabled>
+                                                <option value="35">35</option>
+                                                <option value="36">36</option>
+                                                <option value="37">37</option>
+                                                <option value="38">38</option>
+                                                <option value="39">39</option>
+                                                <option value="40">40</option>
+                                                <option value="41">41</option>
+                                                <option value="42">42</option>
+                                                <option value="43">43</option>
+                                                <option value="44">44</option>
+                                                <option value="45">45</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check mb-2">
+                                                <input class="form-check-input" type="checkbox" value="" id="hasColor">
+                                                <label class="form-check-label" for="hasColor">
+                                                    Sản phẩm có nhiều màu sắc
+                                                </label>
+                                            </div>
+                                            <select class="form-select" id="colorOptions" multiple disabled>
+                                                <option value="black">Đen</option>
+                                                <option value="white">Trắng</option>
+                                                <option value="red">Đỏ</option>
+                                                <option value="blue">Xanh dương</option>
+                                                <option value="green">Xanh lá</option>
+                                                <option value="yellow">Vàng</option>
+                                                <option value="gray">Xám</option>
+                                                <option value="brown">Nâu</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="variantsContainer">
+                                        <div class="variant-row">
+                                            <div class="row">
+                                                <div class="col-md-3 mb-2">
+                                                    <label class="form-label">Biến thể</label>
+                                                    <input type="text" class="form-control" value="Mặc định" readonly>
+                                                </div>
+                                                <div class="col-md-3 mb-2">
+                                                    <label class="form-label">Giá</label>
+                                                    <input type="number" class="form-control" placeholder="Giá" min="0">
+                                                </div>
+                                                <div class="col-md-3 mb-2">
+                                                    <label class="form-label">Giá khuyến mãi</label>
+                                                    <input type="number" class="form-control" placeholder="Giá KM" min="0">
+                                                </div>
+                                                <div class="col-md-3 mb-2">
+                                                    <label class="form-label">Số lượng</label>
+                                                    <input type="number" class="form-control" placeholder="Số lượng" min="0">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <button type="button" class="btn btn-outline-primary mt-3" id="generateVariants" disabled>
+                                        <i class="fas fa-sync-alt"></i> Tạo biến thể
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-lg-4">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Trạng thái
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <select class="form-select" id="productStatus" name="productStatus">
+                                            <option value="active">Hiển thị</option>
+                                            <option value="draft">Nháp</option>
+                                            <option value="hidden">Ẩn</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Phân loại
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="category" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                        <div th:if="${warningCategory}" class="alert alert-warning" th:text="${warningCategory}"></div>
+                                        <select class="form-select" id="category" name="idCategory" th:field="*{idCategory}" required>
+                                            <option value="">-- Chọn danh mục --</option>
+                                            <option th:each="category : ${categories}" 
+                                                    th:value="${category.id}" 
+                                                    th:text="${category.name}">Giày thể thao</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="brand" class="form-label">Thương hiệu</label>
+                                        <select class="form-select" id="brand" name="brand">
+                                            <option value="">Chọn thương hiệu</option>
+                                            <option value="1">Nike</option>
+                                            <option value="2">Adidas</option>
+                                            <option value="3">Puma</option>
+                                            <option value="4">Converse</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tags" class="form-label">Thẻ</label>
+                                        <input type="text" class="form-control" id="tags" name="tags" placeholder="Nhập thẻ, phân cách bởi dấu phẩy">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Giá và tồn kho
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="productPrice" class="form-label">Giá bán <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₫</span>
+                                            <input type="number" class="form-control" id="productPrice" name="price" th:field="*{price}" required min="0">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="productQuantity" class="form-label">Số lượng trong kho</label>
+                                        <input type="number" class="form-control" id="productQuantity" name="quantity" th:field="*{quantity}" min="0">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Vận chuyển
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="weight" class="form-label">Cân nặng (gram)</label>
+                                        <input type="number" class="form-control" id="weight" name="weight" min="0">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-4 mb-3">
+                                            <label for="length" class="form-label">Dài (cm)</label>
+                                            <input type="number" class="form-control" id="length" name="length" min="0">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="width" class="form-label">Rộng (cm)</label>
+                                            <input type="number" class="form-control" id="width" name="width" min="0">
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label for="height" class="form-label">Cao (cm)</label>
+                                            <input type="number" class="form-control" id="height" name="height" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Thuộc tính sản phẩm
+                                </div>
+                                <div class="card-body">
+                                    <div th:if="${warningConfig}" class="alert alert-warning" th:text="${warningConfig}"></div>
+                                    <div th:each="config, status : ${configurations}" class="mb-3">
+                                        <label th:for="${'config_' + config.id}" class="form-label" th:text="${config.name}">Size</label>
+                                        <input type="text" class="form-control" th:id="${'config_' + config.id}" th:name="${'config_' + config.id}" th:placeholder="${'Nhập ' + config.name}">
+                                        <small class="form-text text-muted" th:if="${config.notes}" th:text="${config.notes}">Nhập các kích thước, cách nhau bằng dấu phẩy</small>
+                                    </div>
+                                    
+                                    <div th:if="${#lists.isEmpty(configurations)}" class="alert alert-info">
+                                        Chưa có cấu hình nào. Hãy thêm cấu hình trong phần <a th:href="@{/admin/products/config}" class="alert-link">Quản lý cấu hình</a>.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Trạng thái sản phẩm
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" value="true" id="isActiveProduct" name="isActive" th:field="*{isActive}" checked>
+                                        <label class="form-check-label" for="isActiveProduct">
+                                            Kích hoạt sản phẩm
+                                        </label>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12 mb-4">
+                            <div class="d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline-secondary me-2">Hủy</button>
+                                <button type="button" class="btn btn-outline-primary me-2">Lưu nháp</button>
+                                <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar toggle
+            document.getElementById('sidebarCollapse').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('active');
+                document.querySelector('.main-content').classList.toggle('active');
+            });
+            
+            // Initialize rich text editor
+            ClassicEditor
+                .create(document.querySelector('#description'))
+                .catch(error => {
+                    console.error(error);
+                });
+                
+            // Toggle variants options
+            document.getElementById('hasSize').addEventListener('change', function() {
+                document.getElementById('sizeOptions').disabled = !this.checked;
+                toggleGenerateVariants();
+            });
+            
+            document.getElementById('hasColor').addEventListener('change', function() {
+                document.getElementById('colorOptions').disabled = !this.checked;
+                toggleGenerateVariants();
+            });
+            
+            function toggleGenerateVariants() {
+                const hasSize = document.getElementById('hasSize').checked;
+                const hasColor = document.getElementById('hasColor').checked;
+                document.getElementById('generateVariants').disabled = !(hasSize || hasColor);
+            }
+        });
+    </script>
+</body>
+</html> 
