@@ -37,12 +37,12 @@
                     </a>
                     <ul class="collapse list-unstyled" id="orderSubmenu">
                         <li><a th:href="@{/admin/orders/list}"><i class="fas fa-list"></i> Danh sách đơn hàng</a></li>
-                        <li><a href="#"><i class="fas fa-truck"></i> Vận chuyển</a></li>
-                        <li><a href="#"><i class="fas fa-money-bill"></i> Thanh toán</a></li>
+                        <li class="active"><a th:href="@{/admin/orders/transport}"><i class="fas fa-truck"></i> Vận chuyển</a></li>
+                        <li><a th:href="@{/admin/orders/payment}"><i class="fas fa-money-bill"></i> Thanh toán</a></li>
                     </ul>
                 </li>
                 <li>
-                    <a href="#"><i class="fas fa-users"></i> Khách hàng</a>
+                    <a th:href="@{/admin/customers/list}"><i class="fas fa-users"></i> <span class="hide-on-collapse">Khách hàng</span></a>
                 </li>
                 <li>
                     <a href="#newsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
@@ -113,7 +113,7 @@
                                 <div class="icon">
                                     <i class="fas fa-box"></i>
                                 </div>
-                                <div class="count">124</div>
+                                <div class="count" th:text="${dashboard.totalProducts}">0</div>
                                 <div class="title">Sản phẩm</div>
                             </div>
                         </div>
@@ -124,7 +124,7 @@
                                 <div class="icon">
                                     <i class="fas fa-shopping-cart"></i>
                                 </div>
-                                <div class="count">56</div>
+                                <div class="count" th:text="${dashboard.totalOrders}">0</div>
                                 <div class="title">Đơn hàng</div>
                             </div>
                         </div>
@@ -135,7 +135,7 @@
                                 <div class="icon">
                                     <i class="fas fa-users"></i>
                                 </div>
-                                <div class="count">87</div>
+                                <div class="count" th:text="${dashboard.totalCustomers}">0</div>
                                 <div class="title">Khách hàng</div>
                             </div>
                         </div>
@@ -146,7 +146,7 @@
                                 <div class="icon">
                                     <i class="fas fa-money-bill"></i>
                                 </div>
-                                <div class="count">25.4M</div>
+                                <div class="count" th:text="${#numbers.formatDecimal(dashboard.totalRevenue, 0, 'COMMA', 0, 'POINT')}">0</div>
                                 <div class="title">Doanh thu</div>
                             </div>
                         </div>
@@ -172,7 +172,10 @@
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
-                                    <canvas id="revenueChart"></canvas>
+                                    <canvas id="revenueChart" 
+                                            th:data-labels="${#strings.arrayJoin(dashboard.revenueLabels, ',')}"
+                                            th:data-values="${#strings.arrayJoin(dashboard.revenueData, ',')}">
+                                    </canvas>
                                 </div>
                             </div>
                         </div>
@@ -184,7 +187,10 @@
                             </div>
                             <div class="card-body">
                                 <div class="chart-container">
-                                    <canvas id="productChart"></canvas>
+                                    <canvas id="productChart"
+                                            th:data-labels="${#strings.arrayJoin(dashboard.productLabels, ',')}"
+                                            th:data-values="${#strings.arrayJoin(dashboard.productData, ',')}">
+                                    </canvas>
                                 </div>
                             </div>
                         </div>
@@ -212,60 +218,32 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>ORD001</td>
-                                                <td>Nguyễn Văn A</td>
-                                                <td>15/04/2023</td>
-                                                <td>2,800,000đ</td>
-                                                <td><span class="badge-status badge-pending">Đang xử lý</span></td>
+                                            <tr th:each="order : ${dashboard.recentOrders}">
+                                                <td th:text="${'ORD' + order.id}">ORD001</td>
+                                                <td th:text="${order.customerName}">Nguyễn Văn A</td>
+                                                <td th:text="${#temporals.format(order.ordersDate, 'dd/MM/yyyy')}">15/04/2023</td>
+                                                <td th:text="${#numbers.formatDecimal(order.totalMoney, 0, 'COMMA', 0, 'POINT') + 'đ'}">2,800,000đ</td>
                                                 <td>
-                                                    <a th:href="@{/admin/orders/detail}" class="btn btn-action btn-view"><i class="fas fa-eye"></i></a>
+                                                    <span th:class="${'badge-status ' + 
+                                                        (order.status == 0 ? 'badge-pending' : 
+                                                        (order.status == 1 ? 'badge-processing' : 
+                                                        (order.status == 2 ? 'badge-shipping' : 
+                                                        (order.status == 3 ? 'badge-completed' : 'badge-cancelled'))))}">
+                                                        <span th:text="${order.status == 0 ? 'Đang xử lý' : 
+                                                                      (order.status == 1 ? 'Đã xác nhận' : 
+                                                                      (order.status == 2 ? 'Đang giao hàng' : 
+                                                                      (order.status == 3 ? 'Đã hoàn thành' : 'Đã hủy')))}">
+                                                            Đang xử lý
+                                                        </span>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a th:href="@{/admin/orders/{id}(id=${order.id})}" class="btn btn-action btn-view"><i class="fas fa-eye"></i></a>
                                                     <button class="btn btn-action btn-edit"><i class="fas fa-edit"></i></button>
                                                 </td>
                                             </tr>
-                                            <tr>
-                                                <td>ORD002</td>
-                                                <td>Trần Thị B</td>
-                                                <td>14/04/2023</td>
-                                                <td>1,800,000đ</td>
-                                                <td><span class="badge-status badge-processing">Đang giao hàng</span></td>
-                                                <td>
-                                                    <a th:href="@{/admin/orders/detail}" class="btn btn-action btn-view"><i class="fas fa-eye"></i></a>
-                                                    <button class="btn btn-action btn-edit"><i class="fas fa-edit"></i></button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>ORD003</td>
-                                                <td>Lê Văn C</td>
-                                                <td>13/04/2023</td>
-                                                <td>4,200,000đ</td>
-                                                <td><span class="badge-status badge-completed">Đã hoàn thành</span></td>
-                                                <td>
-                                                    <a th:href="@{/admin/orders/detail}" class="btn btn-action btn-view"><i class="fas fa-eye"></i></a>
-                                                    <button class="btn btn-action btn-edit"><i class="fas fa-edit"></i></button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>ORD004</td>
-                                                <td>Phạm Thị D</td>
-                                                <td>12/04/2023</td>
-                                                <td>1,200,000đ</td>
-                                                <td><span class="badge-status badge-cancelled">Đã hủy</span></td>
-                                                <td>
-                                                    <a th:href="@{/admin/orders/detail}" class="btn btn-action btn-view"><i class="fas fa-eye"></i></a>
-                                                    <button class="btn btn-action btn-edit"><i class="fas fa-edit"></i></button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>ORD005</td>
-                                                <td>Hoàng Văn E</td>
-                                                <td>11/04/2023</td>
-                                                <td>3,500,000đ</td>
-                                                <td><span class="badge-status badge-completed">Đã hoàn thành</span></td>
-                                                <td>
-                                                    <a th:href="@{/admin/orders/detail}" class="btn btn-action btn-view"><i class="fas fa-eye"></i></a>
-                                                    <button class="btn btn-action btn-edit"><i class="fas fa-edit"></i></button>
-                                                </td>
+                                            <tr th:if="${#lists.isEmpty(dashboard.recentOrders)}">
+                                                <td colspan="6" class="text-center">Không có đơn hàng nào</td>
                                             </tr>
                                         </tbody>
                                     </table>

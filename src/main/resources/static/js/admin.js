@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Sidebar toggle
-    var sidebarCollapse = document.getElementById('sidebarCollapse');
+    const sidebarCollapse = document.getElementById('sidebarCollapse');
     if (sidebarCollapse) {
         sidebarCollapse.addEventListener('click', function() {
             document.querySelector('.sidebar').classList.toggle('active');
@@ -32,18 +32,20 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize charts if any and if Chart.js is loaded
     if (typeof Chart !== 'undefined') {
         // Revenue Chart
-        var revenueChartEl = document.getElementById('revenueChart');
-        if (revenueChartEl) {
-            var revenueCtx = revenueChartEl.getContext('2d');
-            var revenueChart = new Chart(revenueCtx, {
+        const revenueChartElement = document.getElementById('revenueChart');
+        if (revenueChartElement) {
+            const revenueLabels = revenueChartElement.getAttribute('data-labels').split(',');
+            const revenueData = revenueChartElement.getAttribute('data-values').split(',').map(Number);
+
+            new Chart(revenueChartElement, {
                 type: 'line',
                 data: {
-                    labels: ['01/04', '05/04', '10/04', '15/04', '20/04', '25/04', '30/04'],
+                    labels: revenueLabels,
                     datasets: [{
-                        label: 'Doanh thu',
-                        data: [3200000, 4500000, 6700000, 8900000, 7200000, 9800000, 12500000],
-                        backgroundColor: 'rgba(63, 81, 181, 0.1)',
-                        borderColor: 'rgba(63, 81, 181, 1)',
+                        label: 'Doanh thu (VNĐ)',
+                        data: revenueData,
+                        backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 2,
                         tension: 0.4,
                         fill: true
@@ -52,17 +54,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        }
-                    },
                     scales: {
                         y: {
                             beginAtZero: true,
                             ticks: {
                                 callback: function(value) {
-                                    return value.toLocaleString() + 'đ';
+                                    return new Intl.NumberFormat('vi-VN').format(value);
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return new Intl.NumberFormat('vi-VN').format(context.parsed.y) + ' VNĐ';
                                 }
                             }
                         }
@@ -72,22 +78,36 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Product Chart
-        var productChartEl = document.getElementById('productChart');
-        if (productChartEl) {
-            var productCtx = productChartEl.getContext('2d');
-            var productChart = new Chart(productCtx, {
+        const productChartElement = document.getElementById('productChart');
+        if (productChartElement) {
+            const productLabels = productChartElement.getAttribute('data-labels').split(',');
+            const productData = productChartElement.getAttribute('data-values').split(',').map(Number);
+
+            new Chart(productChartElement, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Giày thể thao', 'Giày công sở', 'Giày cao gót', 'Giày sandal'],
+                    labels: productLabels,
                     datasets: [{
-                        data: [42, 28, 18, 12],
+                        data: productData,
                         backgroundColor: [
-                            'rgba(63, 81, 181, 0.7)',
-                            'rgba(76, 175, 80, 0.7)',
-                            'rgba(255, 152, 0, 0.7)',
-                            'rgba(244, 67, 54, 0.7)'
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 206, 86, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(255, 159, 64, 0.7)',
+                            'rgba(199, 199, 199, 0.7)'
                         ],
-                        borderWidth: 0
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(199, 199, 199, 1)'
+                        ],
+                        borderWidth: 1
                     }]
                 },
                 options: {
@@ -95,7 +115,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     maintainAspectRatio: false,
                     plugins: {
                         legend: {
-                            position: 'bottom'
+                            position: 'right',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const value = context.parsed || 0;
+                                    return label + ': ' + value + ' sản phẩm';
+                                }
+                            }
                         }
                     }
                 }

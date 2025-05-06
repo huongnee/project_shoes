@@ -13,4 +13,7 @@ public interface OrdersService {
     boolean delete(Long id);
     
     List<OrdersDTO> findByCustomerId(Long customerId);
+
+    List<OrdersDTO> findAllActive();
+    List<OrdersDTO> findRecentOrders(int limit);
 } 

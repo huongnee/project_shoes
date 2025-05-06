@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -56,4 +57,7 @@ public class Customer {
 
     @Column(name = "USERNAME", nullable = false)
     private String username;
+
+    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    private List<Orders> orders;
 } 

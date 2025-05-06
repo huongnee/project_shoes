@@ -2,13 +2,18 @@ package com.example.project_shoes.controller;
 
 import com.example.project_shoes.dto.CategoryDTO;
 import com.example.project_shoes.dto.ConfigurationsDTO;
+import com.example.project_shoes.dto.CustomerDTO;
 import com.example.project_shoes.dto.ProductDTO;
 import com.example.project_shoes.dto.OrdersDTO;
+import com.example.project_shoes.dto.TransportMethodDTO;
+import com.example.project_shoes.dto.PaymentMethodDTO;
 import com.example.project_shoes.service.CategoryService;
 import com.example.project_shoes.service.ConfigurationsService;
 import com.example.project_shoes.service.ProductService;
 import com.example.project_shoes.service.OrdersService;
 import com.example.project_shoes.service.CustomerService;
+import com.example.project_shoes.service.TransportMethodService;
+import com.example.project_shoes.service.PaymentMethodService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +24,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+// Thêm import cho NewsService và NewsDTO
+import com.example.project_shoes.dto.NewsDTO;
+import com.example.project_shoes.service.NewsService;
+
+import com.example.project_shoes.dto.NewsCategoryDTO;
+import com.example.project_shoes.service.NewsCategoryService;
+
+import com.example.project_shoes.dto.DashboardStatsDTO;
+import com.example.project_shoes.service.DashboardService;
+
+import org.springframework.validation.BindingResult;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
+
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+
+
 
 @Controller
 @RequestMapping("/admin")
@@ -43,8 +66,33 @@ public class AdminController {
     @Autowired
     private OrdersService ordersService;
 
+    @Autowired
+    private TransportMethodService transportMethodService;
+
+    @Autowired
+    private PaymentMethodService paymentMethodService;
+
+    @Autowired
+    private NewsService newsService;
+    @Autowired
+    private NewsCategoryService newsCategoryService; // Service lấy danh mục
+
+    @Autowired
+private DashboardService dashboardService;
+
+@GetMapping("/admin/index")
+public String dashboard(Model model) {
+    // ... các dữ liệu tổng quan khác ...
+    model.addAttribute("dashboard", dashboardService.getDashboardStats());
+    model.addAttribute("activeMenu", "home");
+    return "admin/index";
+}
+
+
+
     @GetMapping({"", "/", "/index", "/index.html"})
-    public String index() {
+    public String index(Model model) {
+        model.addAttribute("dashboard", dashboardService.getDashboardStats());
         return "admin/index";
     }
 
@@ -259,8 +307,187 @@ public class AdminController {
     }
 
     @GetMapping("/customers/list")
-    public String customersList() {
+    public String customersList(Model model,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String searchTerm,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String registrationDate,
+            @RequestParam(required = false) String sortBy) {
+        try {
+            List<CustomerDTO> allCustomers;
+            
+            // Xử lý tìm kiếm
+            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+                allCustomers = customerService.searchCustomers(searchTerm);
+                System.out.println("Tìm kiếm khách hàng với từ khóa: " + searchTerm);
+            } else {
+                allCustomers = customerService.findAll();
+            }
+            
+            // Xử lý lọc theo trạng thái
+            if (status != null && !status.isEmpty()) {
+                boolean isActive = "1".equals(status);
+                allCustomers = allCustomers.stream()
+                    .filter(c -> c.getIsActive() == isActive)
+                    .collect(Collectors.toList());
+            }
+            
+            // Xử lý lọc theo ngày đăng ký
+            if (registrationDate != null && !registrationDate.isEmpty()) {
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime startDate;
+                
+                switch (registrationDate) {
+                    case "today":
+                        startDate = now.toLocalDate().atStartOfDay();
+                        break;
+                    case "week":
+                        startDate = now.minusWeeks(1);
+                        break;
+                    case "month":
+                        startDate = now.minusMonths(1);
+                        break;
+                    case "year":
+                        startDate = now.minusYears(1);
+                        break;
+                    default:
+                        startDate = null;
+                }
+                
+                if (startDate != null) {
+                    LocalDateTime finalStartDate = startDate;
+                    allCustomers = allCustomers.stream()
+                        .filter(c -> c.getCreatedDate() != null && c.getCreatedDate().isAfter(finalStartDate))
+                        .collect(Collectors.toList());
+                }
+            }
+            
+            // Xử lý sắp xếp
+            if (sortBy != null && !sortBy.isEmpty()) {
+                switch (sortBy) {
+                    case "newest":
+                        allCustomers.sort((c1, c2) -> c2.getCreatedDate().compareTo(c1.getCreatedDate()));
+                        break;
+                    case "oldest":
+                        allCustomers.sort((c1, c2) -> c1.getCreatedDate().compareTo(c2.getCreatedDate()));
+                        break;
+                    case "name_asc":
+                        allCustomers.sort((c1, c2) -> c1.getName().compareToIgnoreCase(c2.getName()));
+                        break;
+                    case "name_desc":
+                        allCustomers.sort((c1, c2) -> c2.getName().compareToIgnoreCase(c1.getName()));
+                        break;
+                }
+            }
+            
+            System.out.println("Tổng số khách hàng sau khi lọc: " + allCustomers.size());
+            
+            // Tính toán phân trang
+            int totalItems = allCustomers.size();
+            int totalPages = (int) Math.ceil((double) totalItems / size);
+            page = Math.max(1, Math.min(page, totalPages));
+            
+            int fromIndex = (page - 1) * size;
+            int toIndex = Math.min(fromIndex + size, totalItems);
+            
+            List<CustomerDTO> pageCustomers = fromIndex < totalItems ?
+                allCustomers.subList(fromIndex, toIndex) : new ArrayList<>();
+            
+            // Thêm thông tin vào model
+            model.addAttribute("customers", pageCustomers);
+            model.addAttribute("currentPage", page);
+            model.addAttribute("totalPages", Math.max(1, totalPages));
+            model.addAttribute("pageSize", size);
+            model.addAttribute("totalItems", totalItems);
+            model.addAttribute("searchTerm", searchTerm);
+            model.addAttribute("status", status);
+            model.addAttribute("registrationDate", registrationDate);
+            model.addAttribute("sortBy", sortBy);
+            
+            if (pageCustomers.isEmpty()) {
+                if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+                    model.addAttribute("message", "Không tìm thấy khách hàng nào phù hợp với từ khóa: " + searchTerm);
+                } else {
+                    model.addAttribute("message", "Không có khách hàng nào");
+                }
+            }
+            
+        } catch (Exception e) {
+            System.err.println("Lỗi trong customersList: " + e.getMessage());
+            e.printStackTrace();
+            model.addAttribute("error", "Có lỗi xảy ra khi tải danh sách khách hàng");
+            model.addAttribute("customers", new ArrayList<>());
+            model.addAttribute("currentPage", 1);
+            model.addAttribute("totalPages", 1);
+            model.addAttribute("pageSize", size);
+            model.addAttribute("totalItems", 0);
+        }
+        
         return "admin/customers/list";
+    }
+
+    @GetMapping("/customers/details/{id}")
+    public String customerDetails(@PathVariable Long id, Model model) {
+        try {
+            CustomerDTO customer = customerService.findById(id);
+            if (customer != null) {
+                model.addAttribute("customer", customer);
+                return "admin/customers/details";
+            }
+            return "redirect:/admin/customers/list?error=customer_not_found";
+        } catch (Exception e) {
+            return "redirect:/admin/customers/list?error=error_loading_customer";
+        }
+    }
+
+    @GetMapping("/customers/edit/{id}")
+    public String showEditCustomerForm(@PathVariable Long id, Model model) {
+        try {
+            CustomerDTO customer = customerService.findById(id);
+            if (customer != null) {
+                model.addAttribute("customer", customer);
+                return "admin/customers/edit";
+            }
+            return "redirect:/admin/customers/list?error=customer_not_found";
+        } catch (Exception e) {
+            return "redirect:/admin/customers/list?error=error_loading_customer";
+        }
+    }
+
+    @PostMapping("/customers/edit/{id}")
+    public String updateCustomer(@PathVariable Long id, @ModelAttribute CustomerDTO customerDTO, RedirectAttributes redirectAttributes) {
+        try {
+            customerDTO.setId(id);
+            CustomerDTO updatedCustomer = customerService.update(customerDTO);
+            if (updatedCustomer != null) {
+                redirectAttributes.addFlashAttribute("success", "Cập nhật thông tin khách hàng thành công");
+                return "redirect:/admin/customers/list";
+            }
+            redirectAttributes.addFlashAttribute("error", "Không thể cập nhật thông tin khách hàng");
+            return "redirect:/admin/customers/list";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật thông tin khách hàng: " + e.getMessage());
+            return "redirect:/admin/customers/list";
+        }
+    }
+
+    @PostMapping("/customers/delete")
+    public String deleteCustomer(@RequestParam("customerId") Long customerId, RedirectAttributes redirectAttributes) {
+        try {
+            System.out.println("Đang xóa khách hàng có ID: " + customerId);
+            boolean deleted = customerService.delete(customerId);
+            if (deleted) {
+                redirectAttributes.addFlashAttribute("success", "Xóa khách hàng thành công");
+                return "redirect:/admin/customers/list";
+            }
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa khách hàng");
+            return "redirect:/admin/customers/list";
+        } catch (Exception e) {
+            System.err.println("Lỗi khi xóa khách hàng: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa khách hàng: " + e.getMessage());
+            return "redirect:/admin/customers/list";
+        }
     }
 
     // URL /admin/orders/list sẽ hiển thị trang danh sách đơn hàng
@@ -336,4 +563,238 @@ public class AdminController {
         
         return "redirect:/admin/orders/list";
     }
+
+    @GetMapping("/orders/transport")
+    public String transportMethods(Model model) {
+        try {
+            List<TransportMethodDTO> transportMethods = transportMethodService.findAll();
+            model.addAttribute("transportMethods", transportMethods);
+            model.addAttribute("newTransportMethod", new TransportMethodDTO());
+            
+            if (transportMethods.isEmpty()) {
+                model.addAttribute("message", "Không có phương thức vận chuyển nào");
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi lấy danh sách phương thức vận chuyển: " + e.getMessage());
+            model.addAttribute("error", "Có lỗi xảy ra khi tải danh sách phương thức vận chuyển");
+        }
+        return "admin/orders/transport";
+    }
+
+    @PostMapping("/orders/transport/add")
+    public String addTransportMethod(@ModelAttribute TransportMethodDTO transportMethodDTO, 
+                                   RedirectAttributes redirectAttributes) {
+        try {
+            // Thiết lập các giá trị mặc định
+            transportMethodDTO.setIsActive(true);
+            transportMethodDTO.setIsDelete(false);
+            transportMethodDTO.setCreatedDate(LocalDateTime.now());
+            
+            TransportMethodDTO savedMethod = transportMethodService.save(transportMethodDTO);
+            redirectAttributes.addFlashAttribute("success", 
+                "Thêm phương thức vận chuyển " + savedMethod.getName() + " thành công");
+        } catch (Exception e) {
+            System.err.println("Lỗi khi thêm phương thức vận chuyển: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", 
+                "Có lỗi xảy ra khi thêm phương thức vận chuyển: " + e.getMessage());
+        }
+        return "redirect:/admin/orders/transport";
+    }
+
+    @PostMapping("/orders/transport/update/{id}")
+    public String updateTransportMethod(@PathVariable Long id, 
+                                      @ModelAttribute TransportMethodDTO transportMethodDTO,
+                                      RedirectAttributes redirectAttributes) {
+        try {
+            transportMethodDTO.setId(id);
+            transportMethodDTO.setUpdatedDate(LocalDateTime.now());
+            
+            TransportMethodDTO updatedMethod = transportMethodService.update(transportMethodDTO);
+            redirectAttributes.addFlashAttribute("success", 
+                "Cập nhật phương thức vận chuyển " + updatedMethod.getName() + " thành công");
+        } catch (Exception e) {
+            System.err.println("Lỗi khi cập nhật phương thức vận chuyển: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", 
+                "Có lỗi xảy ra khi cập nhật phương thức vận chuyển: " + e.getMessage());
+        }
+        return "redirect:/admin/orders/transport";
+    }
+
+    @PostMapping("/orders/transport/delete/{id}")
+    public String deleteTransportMethod(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            boolean deleted = transportMethodService.delete(id);
+            if (deleted) {
+                redirectAttributes.addFlashAttribute("success", "Xóa phương thức vận chuyển thành công");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Không thể xóa phương thức vận chuyển");
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi xóa phương thức vận chuyển: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", 
+                "Có lỗi xảy ra khi xóa phương thức vận chuyển: " + e.getMessage());
+        }
+        return "redirect:/admin/orders/transport";
+    }
+
+    @GetMapping("/orders/payment")
+    public String showPaymentMethods(Model model) {
+        List<PaymentMethodDTO> paymentMethods = paymentMethodService.findAll();
+        model.addAttribute("paymentMethods", paymentMethods);
+        return "admin/orders/payment";
+    }
+
+    @PostMapping("/orders/payment/add")
+    public String addPaymentMethod(@ModelAttribute PaymentMethodDTO paymentMethodDTO, RedirectAttributes redirectAttributes) {
+        try {
+            paymentMethodService.save(paymentMethodDTO);
+            redirectAttributes.addFlashAttribute("success", "Thêm phương thức thanh toán thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi thêm phương thức thanh toán");
+        }
+        return "redirect:/admin/orders/payment";
+    }
+
+    @PostMapping("/orders/payment/update/{id}")
+    public String updatePaymentMethod(@PathVariable Long id, @ModelAttribute PaymentMethodDTO paymentMethodDTO, RedirectAttributes redirectAttributes) {
+        try {
+            paymentMethodService.update(id, paymentMethodDTO);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật phương thức thanh toán thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật phương thức thanh toán");
+        }
+        return "redirect:/admin/orders/payment";
+    }
+
+    @GetMapping("/orders/payment/delete/{id}")
+    public String deletePaymentMethod(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            paymentMethodService.delete(id);
+            redirectAttributes.addFlashAttribute("success", "Xóa phương thức thanh toán thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa phương thức thanh toán");
+        }
+        return "redirect:/admin/orders/payment";
+    }
+
+    // HIỂN THỊ DANH SÁCH TIN TỨC
+    @GetMapping("/news")
+    public String newsManagement(Model model) {
+        List<NewsDTO> newsList = newsService.getAllNews();
+        model.addAttribute("newsList", newsList);
+        model.addAttribute("newNews", new NewsDTO()); // Form thêm mới
+        model.addAttribute("activeMenu", "news");
+        model.addAttribute("newsCategories", newsCategoryService.findAll()); // Thêm dòng này
+        return "admin/news/list";
+    }
+
+    // THÊM TIN TỨC MỚI
+    @PostMapping("/news/add")
+    public String addNews(@ModelAttribute("newNews") @Valid NewsDTO newsDTO,
+                         BindingResult result,
+                         RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Dữ liệu không hợp lệ");
+            return "redirect:/admin/news";
+        }
+        
+        try {
+            newsService.save(newsDTO);
+            redirectAttributes.addFlashAttribute("success", "Thêm tin tức thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi thêm tin tức: " + e.getMessage());
+        }
+        return "redirect:/admin/news";
+    }
+
+    // CẬP NHẬT TIN TỨC
+    @PostMapping("/news/update/{id}")
+    public String updateNews(@PathVariable Long id,
+                            @ModelAttribute @Valid NewsDTO newsDTO,
+                            BindingResult result,
+                            RedirectAttributes redirectAttributes) {
+        if (result.hasErrors()) {
+            redirectAttributes.addFlashAttribute("error", "Dữ liệu cập nhật không hợp lệ");
+            return "redirect:/admin/news";
+        }
+
+        try {
+            newsService.update(id, newsDTO);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật tin tức thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật tin tức: " + e.getMessage());
+        }
+        return "redirect:/admin/news";
+    }
+
+    // XÓA TIN TỨC
+    @GetMapping("/news/delete/{id}")
+    public String deleteNews(@PathVariable Long id,
+                            RedirectAttributes redirectAttributes) {
+        try {
+            newsService.delete(id);
+            redirectAttributes.addFlashAttribute("success", "Xóa tin tức thành công");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa tin tức: " + e.getMessage());
+        }
+        return "redirect:/admin/news";
+    }
+
+
+    // HIỂN THỊ DANH SÁCH DANH MỤC TIN TỨC
+@GetMapping("/news/categories")
+public String listNewsCategories(Model model) {
+    model.addAttribute("categories", newsCategoryService.findAll());
+    model.addAttribute("newCategory", new NewsCategoryDTO());
+    model.addAttribute("activeMenu", "news"); // Để sidebar highlight đúng mục
+    return "admin/news/categories/list";
+}
+
+// THÊM DANH MỤC TIN TỨC MỚI
+@PostMapping("/news/categories/add")
+public String addNewsCategory(@ModelAttribute("newCategory") NewsCategoryDTO dto,
+                              RedirectAttributes redirectAttributes) {
+    try {
+        newsCategoryService.save(dto);
+        redirectAttributes.addFlashAttribute("success", "Thêm danh mục thành công");
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("error", "Lỗi khi thêm danh mục: " + e.getMessage());
+    }
+    return "redirect:/admin/news/categories";
+}
+
+// HIỂN THỊ FORM SỬA DANH MỤC
+@GetMapping("/news/categories/edit/{id}")
+public String editNewsCategoryForm(@PathVariable Long id, Model model) {
+    NewsCategoryDTO dto = newsCategoryService.findById(id);
+    model.addAttribute("category", dto);
+    model.addAttribute("activeMenu", "news");
+    return "admin/news/categories/edit";
+}
+
+// CẬP NHẬT DANH MỤC TIN TỨC
+@PostMapping("/news/categories/update/{id}")
+public String updateNewsCategory(@PathVariable Long id, @ModelAttribute NewsCategoryDTO dto,
+                                 RedirectAttributes redirectAttributes) {
+    try {
+        newsCategoryService.update(id, dto);
+        redirectAttributes.addFlashAttribute("success", "Cập nhật danh mục thành công");
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("error", "Lỗi khi cập nhật: " + e.getMessage());
+    }
+    return "redirect:/admin/news/categories";
+}
+
+// XÓA DANH MỤC TIN TỨC
+@GetMapping("/news/categories/delete/{id}")
+public String deleteNewsCategory(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+    try {
+        newsCategoryService.delete(id);
+        redirectAttributes.addFlashAttribute("success", "Xóa danh mục thành công");
+    } catch (Exception e) {
+        redirectAttributes.addFlashAttribute("error", "Lỗi khi xóa: " + e.getMessage());
+    }
+    return "redirect:/admin/news/categories";
+}
+
 } 

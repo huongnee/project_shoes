@@ -21,7 +21,9 @@ public class NewsCategoryMapper {
         dto.setCreatedDate(entity.getCreatedDate());
         dto.setIcon(entity.getIcon());
         dto.setIdParent(entity.getIdParent());
-        dto.setIsActive(entity.getIsActive());
+        // dto.setIsActive(entity.getIsActive());
+        dto.setIsActive(entity.getIsActive() != null ? entity.getIsActive() : false);
+
         dto.setIsDelete(entity.getIsDelete());
         dto.setMetaDescription(entity.getMetaDescription());
         dto.setMetaKeyword(entity.getMetaKeyword());
@@ -71,4 +73,17 @@ public class NewsCategoryMapper {
                 .map(this::toEntity)
                 .collect(Collectors.toList());
     }
+    
+    public void updateEntityFromDTO(NewsCategoryDTO dto, NewsCategory entity) {
+        entity.setName(dto.getName());
+        entity.setIsActive(dto.getIsActive());
+        entity.setIcon(dto.getIcon());
+        entity.setIdParent(dto.getIdParent());
+        entity.setMetaDescription(dto.getMetaDescription());
+        entity.setMetaKeyword(dto.getMetaKeyword());
+        entity.setMetaTitle(dto.getMetaTitle());
+        entity.setNotes(dto.getNotes());
+        entity.setSlug(dto.getSlug());
+    }
+    
 } 

@@ -105,6 +105,18 @@ public class OrdersServiceImpl implements OrdersService {
                 .collect(Collectors.toList());
     }
     
+    @Override
+    public List<OrdersDTO> findAllActive() {
+        List<Orders> orders = ordersRepository.findByIsDeleteFalse();
+        return orders.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+    
+    @Override
+    public List<OrdersDTO> findRecentOrders(int limit) {
+        List<Orders> recentOrders = ordersRepository.findTop5ByIsDeleteFalseOrderByOrdersDateDesc();
+        return recentOrders.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+    
     private OrdersDTO convertToDTO(Orders orders) {
         OrdersDTO dto = new OrdersDTO();
         dto.setId(orders.getId());

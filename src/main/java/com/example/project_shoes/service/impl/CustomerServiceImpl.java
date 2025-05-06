@@ -23,10 +23,24 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CustomerDTO> findAll() {
+        System.out.println("Bắt đầu tìm kiếm khách hàng...");
         List<Customer> customers = customerRepository.findByIsDeleteFalse();
-        return customers.stream()
+        System.out.println("Tổng số khách hàng từ database: " + customers.size());
+        
+        // In thông tin chi tiết về từng khách hàng
+        customers.forEach(customer -> {
+            System.out.println("Khách hàng ID: " + customer.getId()
+                + ", Tên: " + customer.getName()
+                + ", Email: " + customer.getEmail()
+                + ", IsDelete: " + customer.getIsDelete()
+                + ", IsActive: " + customer.getIsActive());
+        });
+        
+        List<CustomerDTO> dtos = customers.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+        System.out.println("Số lượng DTO sau khi chuyển đổi: " + dtos.size());
+        return dtos;
     }
 
     @Override
@@ -139,8 +153,17 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public boolean existsByUsername(String username) {
-        Customer customer = customerRepository.findByUsernameAndIsDeleteFalse(username);
-        return customer != null;
+        return customerRepository.existsByUsername(username);
+    }
+
+    @Override
+    public List<CustomerDTO> searchCustomers(String searchTerm) {
+        // Tìm kiếm khách hàng theo tên, email hoặc số điện thoại
+        List<Customer> customers = customerRepository.findByNameContainingOrEmailContainingOrPhoneContainingAndIsDeleteFalse(
+            searchTerm, searchTerm, searchTerm);
+        return customers.stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
     private CustomerDTO convertToDTO(Customer customer) {
@@ -163,6 +186,18 @@ public class CustomerServiceImpl implements CustomerService {
         dto.setUpdatedBy(customer.getUpdatedBy());
         dto.setUpdatedDate(customer.getUpdatedDate());
         dto.setUsername(customer.getUsername());
+        
+        // Tính toán số lượng đơn hàng của khách hàng
+        try {
+            if (customer.getOrders() != null) {
+                dto.setTotalOrders(customer.getOrders().size());
+            } else {
+                dto.setTotalOrders(0);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi tính toán số đơn hàng cho khách hàng " + customer.getId() + ": " + e.getMessage());
+            dto.setTotalOrders(0);
+        }
         
         return dto;
     }

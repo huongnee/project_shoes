@@ -37,12 +37,12 @@
                     </a>
                     <ul class="collapse list-unstyled" id="orderSubmenu">
                         <li><a th:href="@{/admin/orders/list}"><i class="fas fa-list"></i> Danh sách đơn hàng</a></li>
-                        <li><a href="#"><i class="fas fa-truck"></i> Vận chuyển</a></li>
-                        <li><a href="#"><i class="fas fa-money-bill"></i> Thanh toán</a></li>
+                        <li class="active"><a th:href="@{/admin/orders/shipping}"><i class="fas fa-truck"></i> Vận chuyển</a></li>
+                        <li><a th:href="@{/admin/orders/payment}"><i class="fas fa-money-bill"></i> Thanh toán</a></li>
                     </ul>
                 </li>
                 <li>
-                    <a href="#"><i class="fas fa-users"></i> Khách hàng</a>
+                    <a th:href="@{/admin/customers/list}"><i class="fas fa-users"></i> <span class="hide-on-collapse">Khách hàng</span></a>
                 </li>
                 <li>
                     <a href="#newsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">

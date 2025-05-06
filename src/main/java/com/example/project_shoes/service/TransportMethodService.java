@@ -1,9 +1,12 @@
 package com.example.project_shoes.service;
 
-import com.example.project_shoes.entity.TransportMethod;
+import com.example.project_shoes.dto.TransportMethodDTO;
 import java.util.List;
 
 public interface TransportMethodService {
-    List<TransportMethod> findAllActive();
-    TransportMethod findById(Long id);
+    List<TransportMethodDTO> findAll();
+    TransportMethodDTO findById(Long id);
+    TransportMethodDTO save(TransportMethodDTO transportMethodDTO);
+    TransportMethodDTO update(TransportMethodDTO transportMethodDTO);
+    boolean delete(Long id);
 } 

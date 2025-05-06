@@ -24,4 +24,5 @@ public class CustomerDTO {
     private Long updatedBy;
     private LocalDateTime updatedDate;
     private String username;
+    private Integer totalOrders = 0;
 } 

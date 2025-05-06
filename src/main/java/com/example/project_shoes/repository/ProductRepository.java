@@ -25,4 +25,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     
     Product findByIdAndIsDeleteFalse(Long id);
     List<Product> findByIdCategoryAndIsDeleteFalse(Long idCategory);
+    
+    long countByIsDeleteFalse();
+    long countByCategoryIdAndIsDeleteFalse(Long categoryId);
+
 } 

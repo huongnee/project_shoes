@@ -13,4 +13,10 @@ public interface CustomerRepository extends JpaRepository<Customer, Long> {
     Customer findByIdAndIsDeleteFalse(Long id);
     Customer findByUsernameAndIsDeleteFalse(String username);
     Customer findByEmailAndIsDeleteFalse(String email);
+    boolean existsByEmail(String email);
+    boolean existsByUsername(String username);
+    List<Customer> findByNameContainingOrEmailContainingOrPhoneContainingAndIsDeleteFalse(
+        String name, String email, String phone);
+    long countByIsDeleteFalse();
+
 } 

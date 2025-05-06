@@ -306,8 +306,8 @@ public class HomeController {
         model.addAttribute("customerInfo", customerInfo);
         
         // Lấy phương thức thanh toán và vận chuyển
-        List<PaymentMethod> paymentMethods = paymentMethodService.findAllActive();
-        List<TransportMethod> transportMethods = transportMethodService.findAllActive();
+        List<PaymentMethodDTO> paymentMethods = paymentMethodService.findAll();
+        List<TransportMethodDTO> transportMethods = transportMethodService.findAll();
         
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("total", total);

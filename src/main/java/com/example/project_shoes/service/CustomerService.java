@@ -16,4 +16,5 @@ public interface CustomerService {
     CustomerDTO findByEmailAndPassword(String email, String password);
     boolean existsByEmail(String email);
     boolean existsByUsername(String username);
+    List<CustomerDTO> searchCustomers(String searchTerm);
 } 

@@ -76,4 +76,20 @@ public class NewsMapper {
                 .map(this::toEntity)
                 .collect(Collectors.toList());
     }
+    public void updateEntityFromDTO(NewsDTO dto, News entity) {
+        if (dto == null || entity == null) return;
+        
+        entity.setName(dto.getName());
+        entity.setContents(dto.getContents());
+        entity.setDescription(dto.getDescription());
+        entity.setIdNewsCategory(dto.getIdNewsCategory());
+        entity.setImage(dto.getImage());
+        entity.setIsActive(dto.getIsActive());
+        entity.setMetaDescription(dto.getMetaDescription());
+        entity.setMetaKeyword(dto.getMetaKeyword());
+        entity.setMetaTitle(dto.getMetaTitle());
+        entity.setSlug(dto.getSlug());
+        // Các trường createdDate/createdBy không cập nhật khi edit[2]
+    }
+    
 } 
