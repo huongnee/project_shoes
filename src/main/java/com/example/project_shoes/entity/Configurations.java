@@ -2,12 +2,9 @@ package com.example.project_shoes.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -32,16 +29,4 @@ public class Configurations {
 
     @Column(name = "ISDELETE")
     private Boolean isDelete;
-
-    @Column(name = "CREATED_BY")
-    private Long createdBy;
-
-    @Column(name = "CREATED_DATE")
-    private LocalDateTime createdDate;
-
-    @Column(name = "UPDATED_BY")
-    private Long updatedBy;
-
-    @Column(name = "UPDATED_DATE")
-    private LocalDateTime updatedDate;
 } 

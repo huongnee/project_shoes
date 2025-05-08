@@ -1,7 +1,10 @@
 package com.example.project_shoes.mapper;
 
 import com.example.project_shoes.dto.ProductDTO;
+import com.example.project_shoes.dto.ProductImagesDTO;
 import com.example.project_shoes.entity.Product;
+import com.example.project_shoes.entity.ProductImages;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,6 +12,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class ProductMapper {
+
+    @Autowired
+    private ProductImagesMapper productImagesMapper;
 
     public ProductDTO toDTO(Product entity) {
         if (entity == null) {
@@ -39,6 +45,14 @@ public class ProductMapper {
         // Thêm tên danh mục nếu có thông tin danh mục
         if (entity.getCategory() != null) {
             dto.setCategoryName(entity.getCategory().getName());
+        }
+
+        // Map danh sách hình ảnh sản phẩm
+        if (entity.getProductImages() != null) {
+            List<ProductImagesDTO> productImagesDTOs = entity.getProductImages().stream()
+                    .map(productImagesMapper::toDTO)
+                    .collect(Collectors.toList());
+            dto.setProductImages(productImagesDTOs);
         }
         
         return dto;

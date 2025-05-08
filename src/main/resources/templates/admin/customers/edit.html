@@ -11,9 +11,14 @@
 <body>
     <div class="wrapper">
         <!-- Sidebar (giống như list.html) -->
-        
+         <!-- Sidebar  -->
+        <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+       
         <!-- Page Content -->
         <div class="main-content">
+            <!-- Navbar -->
+            <div th:replace="~{admin/fragments/navbar :: navbar}"></div>
+
             <div class="container-fluid">
                 <div class="row mb-4">
                     <div class="col-12">

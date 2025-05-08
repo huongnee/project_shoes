@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chỉnh sửa sản phẩm - Shoes Store</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/static/css/admin.css}">
+    <style>
+        .dropzone {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .dropzone.dragover {
+            border-color: #000;
+            background-color: rgba(0,0,0,0.1);
+        }
+
+        .image-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .image-preview {
+            position: relative;
+            width: 100px;
+            height: 100px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            line-height: 20px;
+            text-align: center;
+            cursor: pointer;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+        <!-- Page Content -->
+        <div class="main-content">
+            <!-- Navbar -->
+            <div th:replace="~{admin/fragments/navbar :: navbar}"></div>
+
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12">
+                        <a th:href="@{/admin/products/list}" class="btn btn-outline-primary mb-3">
+                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
+                        </a>
+                        <h2 class="mb-4">Chỉnh sửa sản phẩm</h2>
+                    </div>
+                </div>
+
+                <form id="productForm" th:action="@{/admin/products/edit/{id}(id=${product.id})}" method="post" th:object="${product}" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Thông tin cơ bản
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="productName" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="productName" name="name" th:field="*{name}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="shortDescription" class="form-label">Mô tả ngắn</label>
+                                        <textarea class="form-control" id="shortDescription" name="notes" th:field="*{notes}" rows="3"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Mô tả chi tiết</label>
+                                        <textarea class="form-control" id="description" name="description" th:field="*{description}" rows="6"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Hình ảnh sản phẩm
+                                </div>
+                                <div class="card-body">
+                                    <div class="current-images mb-3" th:if="${product.productImages != null and !product.productImages.isEmpty()}">
+                                        <h6>Ảnh hiện tại:</h6>
+                                        <div class="row">
+                                            <div class="col-2 mb-2" th:each="image : ${product.productImages}">
+                                                <img th:src="@{${image.urlImg}}" class="img-thumbnail" th:alt="${image.name}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="imageFiles" class="form-label">Chọn ảnh mới (nếu muốn thay đổi):</label>
+                                        <input type="file" class="form-control" id="imageFiles" name="imageFiles" multiple accept="image/*">
+                                        <small class="text-muted">Có thể chọn nhiều ảnh. Nếu không chọn ảnh mới, ảnh cũ sẽ được giữ lại.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Phân loại
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="category" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                        <div th:if="${warningCategory}" class="alert alert-warning" th:text="${warningCategory}"></div>
+                                        <select class="form-select" id="category" name="idCategory" th:field="*{idCategory}" required>
+                                            <option value="">-- Chọn danh mục --</option>
+                                            <option th:each="category : ${categories}" 
+                                                    th:value="${category.id}" 
+                                                    th:text="${category.name}">Giày thể thao</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Giá và tồn kho
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="productPrice" class="form-label">Giá bán <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">₫</span>
+                                            <input type="number" class="form-control" id="productPrice" name="price" th:field="*{price}" required min="0">
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="productQuantity" class="form-label">Số lượng trong kho</label>
+                                        <input type="number" class="form-control" id="productQuantity" name="quantity" th:field="*{quantity}" min="0">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    Trạng thái sản phẩm
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-check mb-3">
+                                        <input class="form-check-input" type="checkbox" value="true" id="isActiveProduct" name="isActive" th:field="*{isActive}">
+                                        <label class="form-check-label" for="isActiveProduct">
+                                            Kích hoạt sản phẩm
+                                        </label>
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-primary">Cập nhật sản phẩm</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize rich text editor
+            ClassicEditor
+                .create(document.querySelector('#description'))
+                .catch(error => {
+                    console.error(error);
+                });
+
+            // Image Upload Handling
+            const dropzone = document.getElementById('imageDropzone');
+            const fileInput = document.getElementById('imageFiles');
+            const previewContainer = document.getElementById('imagePreviewContainer');
+            const maxFileSize = 2 * 1024 * 1024; // 2MB
+            const maxFiles = 10;
+
+            dropzone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('dragover');
+            });
+
+            dropzone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                handleFiles(files);
+            });
+
+            dropzone.addEventListener('click', () => {
+                fileInput.click();
+            });
+
+            fileInput.addEventListener('change', (e) => {
+                handleFiles(e.target.files);
+            });
+
+            function handleFiles(files) {
+                if (files.length > maxFiles) {
+                    alert(`Chỉ được chọn tối đa ${maxFiles} ảnh`);
+                    return;
+                }
+
+                Array.from(files).forEach(file => {
+                    if (!file.type.startsWith('image/')) {
+                        alert('Chỉ chấp nhận file ảnh');
+                        return;
+                    }
+
+                    if (file.size > maxFileSize) {
+                        alert('File ảnh không được vượt quá 2MB');
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const preview = document.createElement('div');
+                        preview.className = 'image-preview';
+                        preview.innerHTML = `
+                            <img src="${e.target.result}" alt="Preview">
+                            <button type="button" class="delete-btn">&times;</button>
+                        `;
+                        previewContainer.appendChild(preview);
+
+                        preview.querySelector('.delete-btn').addEventListener('click', function() {
+                            preview.remove();
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Delete existing images
+            document.querySelectorAll('.delete-btn[data-id]').forEach(button => {
+                button.addEventListener('click', function() {
+                    const imageId = this.getAttribute('data-id');
+                    if (confirm('Bạn có chắc chắn muốn xóa ảnh này?')) {
+                        // Gửi request xóa ảnh
+                        fetch(`/admin/products/images/delete/${imageId}`, {
+                            method: 'POST'
+                        })
+                        .then(response => {
+                            if (response.ok) {
+                                this.closest('.image-preview').remove();
+                            } else {
+                                alert('Có lỗi xảy ra khi xóa ảnh');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Có lỗi xảy ra khi xóa ảnh');
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

@@ -129,10 +129,6 @@ public class ConfigurationsServiceImpl implements ConfigurationsService {
         // Đảm bảo các giá trị boolean không bị null
         dto.setIsActive(config.getIsActive() == null ? true : config.getIsActive());
         dto.setIsDelete(config.getIsDelete() == null ? false : config.getIsDelete());
-        dto.setCreatedBy(config.getCreatedBy());
-        dto.setCreatedDate(config.getCreatedDate());
-        dto.setUpdatedBy(config.getUpdatedBy());
-        dto.setUpdatedDate(config.getUpdatedDate());
         return dto;
     }
     

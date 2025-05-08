@@ -1,121 +1,78 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <nav th:fragment="sidebar" class="sidebar">
         <div class="sidebar-header">
-            <h3>Admin Dashboard</h3>
-            <button id="sidebarCollapse" class="btn">
-                <i class="fas fa-bars"></i>
-            </button>
+            <h3>SHOES ADMIN</h3>
         </div>
-        <ul class="nav flex-column">
-            <!-- Dashboard -->
-            <li class="nav-item">
-                <a th:href="@{/admin}" class="nav-link">
-                    <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
 
-            <!-- Sản phẩm -->
-            <li class="nav-item">
-                <a href="#productsSubmenu" data-bs-toggle="collapse" class="nav-link">
-                    <i class="fas fa-box"></i>
-                    <span>Sản phẩm</span>
+        <ul class="list-unstyled components">
+            <li th:classappend="${activeMenu} == 'dashboard' ? ' active'">
+                <a th:href="@{/admin/index}"><i class="fas fa-home"></i> Trang chủ</a>
+            </li>
+            
+            <li th:classappend="${activeMenu} == 'products' ? ' active'">
+                <a href="#productSubmenu" data-bs-toggle="collapse"
+                   th:aria-expanded="${activeMenu} == 'products'" class="dropdown-toggle">
+                    <i class="fas fa-box"></i> Sản phẩm
                 </a>
-                <ul class="collapse nav flex-column ms-1" id="productsSubmenu">
-                    <li class="nav-item">
-                        <a th:href="@{/admin/products/list}" class="nav-link">
-                            <i class="fas fa-list"></i>
-                            <span>Danh sách sản phẩm</span>
-                        </a>
+                <ul class="collapse list-unstyled" id="productSubmenu"
+                    th:classappend="${activeMenu} == 'products' ? ' show'">
+                    <li th:classappend="${activeSubMenu} == 'products-list' ? ' active'">
+                        <a th:href="@{/admin/products/list}"><i class="fas fa-list"></i> Danh sách sản phẩm</a>
                     </li>
-                    <li class="nav-item">
-                        <a th:href="@{/admin/categories/list}" class="nav-link">
-                            <i class="fas fa-tags"></i>
-                            <span>Danh mục</span>
-                        </a>
+                    <li th:classappend="${activeSubMenu} == 'products-categories' ? ' active'">
+                        <a th:href="@{/admin/products/categories}"><i class="fas fa-tags"></i> Danh mục</a>
+                    </li>
+                    <li th:classappend="${activeSubMenu} == 'products-config' ? ' active'">
+                        <a th:href="@{/admin/products/config}"><i class="fas fa-cogs"></i> Cấu hình</a>
                     </li>
                 </ul>
             </li>
 
-            <!-- Đơn hàng -->
-            <li class="nav-item">
-                <a href="#ordersSubmenu" data-bs-toggle="collapse" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Đơn hàng</span>
+            <li th:classappend="${activeMenu} == 'orders' ? ' active'">
+                <a href="#orderSubmenu" data-bs-toggle="collapse"
+                   th:aria-expanded="${activeMenu} == 'orders'" class="dropdown-toggle">
+                    <i class="fas fa-shopping-cart"></i> Đơn hàng
                 </a>
-                <ul class="collapse nav flex-column ms-1" id="ordersSubmenu">
-                    <li class="nav-item">
-                        <a th:href="@{/admin/orders/list}" class="nav-link">
-                            <i class="fas fa-list"></i>
-                            <span>Danh sách đơn hàng</span>
-                        </a>
+                <ul class="collapse list-unstyled" id="orderSubmenu"
+                    th:classappend="${activeMenu} == 'orders' ? ' show'">
+                    <li th:classappend="${activeSubMenu} == 'orders-list' ? ' active'">
+                        <a th:href="@{/admin/orders/list}"><i class="fas fa-list"></i> Danh sách đơn hàng</a>
                     </li>
-                    <li class="nav-item">
-                        <a th:href="@{/admin/orders/transport}" class="nav-link">
-                            <i class="fas fa-truck"></i>
-                            <span>Vận chuyển</span>
-                        </a>
+                    <li th:classappend="${activeSubMenu} == 'orders-transport' ? ' active'">
+                        <a th:href="@{/admin/orders/transport}"><i class="fas fa-truck"></i> Vận chuyển</a>
                     </li>
-                    <li class="nav-item">
-                        <a th:href="@{/admin/orders/payment}" class="nav-link">
-                            <i class="fas fa-money-bill"></i>
-                            <span>Thanh toán</span>
-                        </a>
+                    <li th:classappend="${activeSubMenu} == 'orders-payment' ? ' active'">
+                        <a th:href="@{/admin/orders/payment}"><i class="fas fa-money-bill"></i> Thanh toán</a>
                     </li>
                 </ul>
             </li>
 
-            <!-- Khách hàng -->
-            <li class="nav-item">
-                <a href="#customersSubmenu" data-bs-toggle="collapse" class="nav-link">
-                    <i class="fas fa-users"></i>
-                    <span>Khách hàng</span>
+            <li th:classappend="${activeMenu} == 'customers' ? ' active'">
+                <a th:href="@{/admin/customers/list}">
+                    <i class="fas fa-users"></i> <span class="hide-on-collapse">Khách hàng</span>
                 </a>
-                <ul class="collapse nav flex-column ms-1" id="customersSubmenu">
-                    <li class="nav-item">
-                        <a th:href="@{/admin/customers/list}" class="nav-link">
-                            <i class="fas fa-list"></i>
-                            <span>Danh sách khách hàng</span>
-                        </a>
-                    </li>
-                </ul>
             </li>
 
-            <!-- Cài đặt -->
-            <li class="nav-item">
-                <a href="#settingsSubmenu" data-bs-toggle="collapse" class="nav-link">
-                    <i class="fas fa-cog"></i>
-                    <span>Cài đặt</span>
+            <li th:classappend="${activeMenu} == 'news' ? ' active'">
+                <a href="#newsSubmenu" data-bs-toggle="collapse"
+                   th:aria-expanded="${activeMenu} == 'news'" class="dropdown-toggle">
+                    <i class="fas fa-newspaper"></i> Tin tức
                 </a>
-                <ul class="collapse nav flex-column ms-1" id="settingsSubmenu">
-                    <li class="nav-item">
-                        <a th:href="@{/admin/profile}" class="nav-link">
-                            <i class="fas fa-user"></i>
-                            <span>Thông tin cá nhân</span>
-                        </a>
+                <ul class="collapse list-unstyled" id="newsSubmenu"
+                    th:classappend="${activeMenu} == 'news' ? ' show'">
+                    <li th:classappend="${activeSubMenu} == 'news-list' ? ' active'">
+                        <a th:href="@{/admin/news}"><i class="fas fa-list"></i> Danh sách tin tức</a>
                     </li>
-                    <li class="nav-item">
-                        <a th:href="@{/admin/settings}" class="nav-link">
-                            <i class="fas fa-wrench"></i>
-                            <span>Cài đặt hệ thống</span>
-                        </a>
+                    <li th:classappend="${activeSubMenu} == 'news-categories' ? ' active'">
+                        <a th:href="@{/admin/news/categories}"><i class="fas fa-tags"></i> Danh mục tin tức</a>
                     </li>
                 </ul>
-            </li>
-
-            <!-- Đăng xuất -->
-            <li class="nav-item mt-auto">
-                <form th:action="@{/logout}" method="post" class="nav-link">
-                    <button type="submit" class="btn btn-link p-0">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span>Đăng xuất</span>
-                    </button>
-                </form>
             </li>
         </ul>
     </nav>

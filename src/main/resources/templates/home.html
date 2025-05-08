@@ -6,101 +6,324 @@
     <title>Shop Giày - Trang Chủ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
     <link rel="stylesheet" th:href="@{/static/css/styles.css}">
+    <style>
+        /* Hero Banner Styles */
+        .hero-banner {
+            background: linear-gradient(45deg, #1a237e, #0d47a1);
+            padding: 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('/static/images/pattern.png');
+            opacity: 0.1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(45deg, #fff, #e3f2fd);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 2rem;
+        }
+
+        .hero-button {
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            background: #fff;
+            color: #1a237e;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            background: #e3f2fd;
+            color: #0d47a1;
+        }
+
+        /* Featured Categories */
+        .categories-section {
+            padding: 80px 0;
+            background: #fff;
+        }
+
+        .category-card {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 30px;
+            cursor: pointer;
+        }
+
+        .category-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .category-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: #fff;
+        }
+
+        .category-card:hover .category-image {
+            transform: scale(1.1);
+        }
+
+        /* Featured Products */
+        .featured-section {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1a237e;
+            margin-bottom: 15px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(45deg, #1a237e, #0d47a1);
+            border-radius: 2px;
+        }
+
+        .section-title p {
+            color: #666;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .product-card {
+            border: none;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+            background: #fff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+        }
+
+        .product-image-wrapper {
+            position: relative;
+            padding-top: 100%;
+            overflow: hidden;
+            background: #f8f9fa;
+        }
+
+        .product-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .product-card:hover .product-image {
+            transform: scale(1.1);
+        }
+
+        .product-body {
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1a237e;
+        }
+
+        .product-price {
+            color: #e53935;
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-product {
+            padding: 10px 25px;
+            border-radius: 25px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cart {
+            background: linear-gradient(45deg, #43a047, #2e7d32);
+            border: none;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .btn-cart:hover {
+            background: linear-gradient(45deg, #2e7d32, #1b5e20);
+            transform: translateY(-2px);
+        }
+
+        .btn-details {
+            background: #fff;
+            border: 2px solid #1a237e;
+            color: #1a237e;
+        }
+
+        .btn-details:hover {
+            background: #1a237e;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        /* Benefits Section */
+        .benefits-section {
+            padding: 80px 0;
+            background: #fff;
+        }
+
+        .benefit-card {
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .benefit-icon {
+            font-size: 2.5rem;
+            color: #1a237e;
+            margin-bottom: 20px;
+        }
+
+        .benefit-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1a237e;
+            margin-bottom: 15px;
+        }
+
+        .benefit-text {
+            color: #666;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body>
     <!-- Header -->
-    <header class="bg-dark text-white py-3">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col-md-3">
-                    <h1 class="mb-0"><a th:href="@{/}" class="text-white text-decoration-none">Shop Giày</a></h1>
-                </div>
-                <div class="col-md-6">
-                    <form th:action="@{/search}" method="get" class="d-flex">
-                        <input type="text" name="keyword" class="form-control" placeholder="Tìm kiếm sản phẩm...">
-                        <button type="submit" class="btn btn-primary ms-2"><i class="fas fa-search"></i></button>
-                    </form>
-                </div>
-                <div class="col-md-3 text-end">
-                    <a th:href="@{/cart}" class="btn btn-outline-light position-relative me-2">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span th:if="${session.cart != null and !session.cart.isEmpty()}" 
-                              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                            <span th:text="${session.cart.size()}"></span>
-                        </span>
-                    </a>
-                    <a th:if="${session.customerId == null}" th:href="@{/login}" class="btn btn-outline-light">
-                        <i class="fas fa-user"></i> Đăng nhập
-                    </a>
-                    <div th:if="${session.customerId != null}" class="dropdown d-inline">
-                        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user"></i> Tài khoản
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" th:href="@{/my-orders}">Đơn hàng của tôi</a></li>
-                            <li><a class="dropdown-item" th:href="@{/profile}">Hồ sơ</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" th:href="@{/logout}">Đăng xuất</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    <div th:replace="~{fragments/header :: header}"></div>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container">
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link active" th:href="@{/}">Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" th:href="@{/products}">Tất cả sản phẩm</a>
-                    </li>
-                    <li th:each="category : ${categories}" class="nav-item">
-                        <a class="nav-link" th:href="@{/products/category/{id}(id=${category.id})}" 
-                           th:text="${category.name}"></a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
+    <div th:replace="~{fragments/navigation :: navigation}"></div>
 
-    <!-- Banner -->
-    <section class="py-5 bg-primary text-white text-center">
+    <!-- Hero Banner -->
+    <section class="hero-banner">
         <div class="container">
-            <h1 class="display-4">Chào mừng đến với Shop Giày</h1>
-            <p class="lead">Khám phá bộ sưu tập giày mới nhất với chất lượng tốt nhất</p>
-            <a th:href="@{/products}" class="btn btn-light btn-lg">Xem sản phẩm</a>
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <h1 class="hero-title">Khám Phá Phong Cách Của Bạn</h1>
+                    <p class="hero-subtitle">Bộ sưu tập giày cao cấp với thiết kế độc đáo và chất lượng hàng đầu</p>
+                    <a th:href="@{/products}" class="btn hero-button">
+                        Khám phá ngay
+                        <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
         </div>
     </section>
 
-    <!-- Featured Products -->
-    <section class="py-5">
+    <!-- Featured Categories -->
+    <section class="categories-section">
         <div class="container">
-            <h2 class="text-center mb-4">Sản phẩm nổi bật</h2>
+            <div class="section-title">
+                <h2>Danh Mục Nổi Bật</h2>
+                <p>Khám phá các dòng sản phẩm đa dạng của chúng tôi</p>
+            </div>
             <div class="row">
-                <div th:each="product : ${products}" class="col-md-3 mb-4">
-                    <div class="card h-100">
-                        <img th:if="${product.image != null}" th:src="@{/static/images/products/{img}(img=${product.image})}" 
-                             class="card-img-top" alt="Product Image">
-                        <img th:if="${product.image == null}" th:src="@{/static/images/no-image.jpg}" 
-                             class="card-img-top" alt="No Image">
-                        <div class="card-body">
-                            <h5 class="card-title" th:text="${product.name}">Tên sản phẩm</h5>
-                            <p class="card-text text-danger fw-bold" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
-                                Giá sản phẩm
-                            </p>
-                            <a th:href="@{/products/{id}(id=${product.id})}" class="btn btn-primary">Xem chi tiết</a>
-                            <button class="btn btn-success add-to-cart" th:attr="data-id=${product.id}">
-                                <i class="fas fa-cart-plus"></i>
-                            </button>
+                <div class="col-md-4">
+                    <div class="category-card">
+                        <img src="/static/images/categories/sneakers.jpg" alt="Sneakers" class="category-image">
+                        <div class="category-overlay">
+                            <h3>Giày Sneaker</h3>
+                            <p>Phong cách trẻ trung, năng động</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="category-card">
+                        <img src="/static/images/categories/sports.jpg" alt="Sports" class="category-image">
+                        <div class="category-overlay">
+                            <h3>Giày Thể Thao</h3>
+                            <p>Chuyên dụng cho vận động</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="category-card">
+                        <img src="/static/images/categories/casual.jpg" alt="Casual" class="category-image">
+                        <div class="category-overlay">
+                            <h3>Giày Casual</h3>
+                            <p>Thoải mái cho mọi hoạt động</p>
                         </div>
                     </div>
                 </div>
@@ -108,63 +331,84 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4">
+    <!-- Featured Products -->
+    <section class="featured-section">
         <div class="container">
+            <div class="section-title">
+                <h2>Sản Phẩm Nổi Bật</h2>
+                <p>Khám phá những mẫu giày được yêu thích nhất tại shop chúng tôi</p>
+            </div>
             <div class="row">
-                <div class="col-md-4">
-                    <h5>Thông tin liên hệ</h5>
-                    <p>Địa chỉ: 123 Đường ABC, Quận XYZ, TP. HCM</p>
-                    <p>Email: contact@shopgiay.com</p>
-                    <p>Hotline: 0123 456 789</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Hỗ trợ khách hàng</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-white">Chính sách đổi trả</a></li>
-                        <li><a href="#" class="text-white">Hướng dẫn mua hàng</a></li>
-                        <li><a href="#" class="text-white">Phương thức thanh toán</a></li>
-                        <li><a href="#" class="text-white">Phương thức vận chuyển</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Kết nối với chúng tôi</h5>
-                    <div class="social-links">
-                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f fa-lg"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-instagram fa-lg"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-twitter fa-lg"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-youtube fa-lg"></i></a>
+                <div th:each="product : ${products}" class="col-md-3">
+                    <div class="product-card">
+                        <div class="product-image-wrapper">
+                            <img th:if="${product.image != null}" th:src="@{${product.image}}" class="product-image" th:alt="${product.name}">
+                            <img th:unless="${product.image != null}" src="/static/images/placeholder.jpg" class="product-image" alt="Placeholder">
+                        </div>
+                        <div class="product-body">
+                            <h5 class="product-title" th:text="${product.name}">Tên sản phẩm</h5>
+                            <p class="product-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                Giá sản phẩm
+                            </p>
+                            <div class="d-flex justify-content-center">
+                                <a th:href="@{/products/{id}(id=${product.id})}" 
+                                   class="btn btn-details btn-product">
+                                    Chi tiết
+                                </a>
+                                <button class="btn btn-cart btn-product add-to-cart" 
+                                        th:attr="data-id=${product.id}">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <hr>
-            <div class="text-center">
-                <p>&copy; 2023 Shop Giày. All rights reserved.</p>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="benefit-card">
+                        <i class="fas fa-shipping-fast benefit-icon"></i>
+                        <h4 class="benefit-title">Giao Hàng Nhanh</h4>
+                        <p class="benefit-text">Miễn phí giao hàng cho đơn hàng trên 500K</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="benefit-card">
+                        <i class="fas fa-medal benefit-icon"></i>
+                        <h4 class="benefit-title">Chất Lượng Đảm Bảo</h4>
+                        <p class="benefit-text">Cam kết chính hãng 100%</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="benefit-card">
+                        <i class="fas fa-sync-alt benefit-icon"></i>
+                        <h4 class="benefit-title">Đổi Trả Dễ Dàng</h4>
+                        <p class="benefit-text">30 ngày đổi trả miễn phí</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="benefit-card">
+                        <i class="fas fa-headset benefit-icon"></i>
+                        <h4 class="benefit-title">Hỗ Trợ 24/7</h4>
+                        <p class="benefit-text">Luôn sẵn sàng hỗ trợ bạn</p>
+                    </div>
+                </div>
             </div>
         </div>
-    </footer>
+    </section>
+
+    <!-- Footer -->
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
     <script th:src="@{/static/js/main.js}"></script>
-    <script>
-        $(document).ready(function() {
-            // Xử lý thêm vào giỏ hàng
-            $('.add-to-cart').click(function() {
-                var productId = $(this).data('id');
-                $.ajax({
-                    url: '/cart/add/' + productId,
-                    type: 'POST',
-                    data: { quantity: 1 },
-                    success: function(response) {
-                        if (response.success) {
-                            alert('Đã thêm sản phẩm vào giỏ hàng!');
-                            location.reload();
-                        }
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html> 

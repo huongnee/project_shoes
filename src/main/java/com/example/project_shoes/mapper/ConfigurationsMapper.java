@@ -21,10 +21,6 @@ public class ConfigurationsMapper {
         dto.setNotes(entity.getNotes());
         dto.setIsActive(entity.getIsActive() != null ? entity.getIsActive() : true);
         dto.setIsDelete(entity.getIsDelete() != null ? entity.getIsDelete() : false);
-        dto.setCreatedBy(entity.getCreatedBy());
-        dto.setCreatedDate(entity.getCreatedDate());
-        dto.setUpdatedBy(entity.getUpdatedBy());
-        dto.setUpdatedDate(entity.getUpdatedDate());
         
         return dto;
     }
@@ -40,10 +36,6 @@ public class ConfigurationsMapper {
         entity.setNotes(dto.getNotes());
         entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
         entity.setIsDelete(dto.getIsDelete() != null ? dto.getIsDelete() : false);
-        entity.setCreatedBy(dto.getCreatedBy());
-        entity.setCreatedDate(dto.getCreatedDate());
-        entity.setUpdatedBy(dto.getUpdatedBy());
-        entity.setUpdatedDate(dto.getUpdatedDate());
         
         return entity;
     }

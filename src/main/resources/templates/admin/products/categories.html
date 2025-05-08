@@ -11,103 +11,13 @@
 <body>
     <div class="wrapper">
         <!-- Sidebar  -->
-        <nav class="sidebar">
-            <div class="sidebar-header">
-                <h3>SHOES ADMIN</h3>
-            </div>
-
-            <ul class="list-unstyled components">
-                <li>
-                    <a th:href="@{/admin/index}"><i class="fas fa-home"></i> Trang chủ</a>
-                </li>
-                <li class="active">
-                    <a href="#productSubmenu" data-bs-toggle="collapse" aria-expanded="true" class="dropdown-toggle">
-                        <i class="fas fa-box"></i> Sản phẩm
-                    </a>
-                    <ul class="collapse show list-unstyled" id="productSubmenu">
-                        <li><a th:href="@{/admin/products/list}"><i class="fas fa-list"></i> Danh sách sản phẩm</a></li>
-                        <li><a th:href="@{/admin/products/add}"><i class="fas fa-plus"></i> Thêm sản phẩm</a></li>
-                        <li class="active"><a th:href="@{/admin/products/categories}"><i class="fas fa-tags"></i> Danh mục</a></li>
-                        <li><a th:href="@{/admin/products/config}"><i class="fas fa-cogs"></i> Cấu hình</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#orderSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="fas fa-shopping-cart"></i> Đơn hàng
-                    </a>
-                    <ul class="collapse list-unstyled" id="orderSubmenu">
-                        <li><a th:href="@{/admin/orders/list}"><i class="fas fa-list"></i> Danh sách đơn hàng</a></li>
-                        <li><a th:href="@{/admin/orders/shipping}"><i class="fas fa-truck"></i> Vận chuyển</a></li>
-                        <li><a th:href="@{/admin/orders/payment}"><i class="fas fa-money-bill"></i> Thanh toán</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#customerSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="fas fa-users"></i> Khách hàng
-                    </a>
-                    <ul class="collapse list-unstyled" id="customerSubmenu">
-                        <li><a th:href="@{/admin/customers/list}"><i class="fas fa-list"></i> Danh sách khách hàng</a></li>
-                        <li><a th:href="@{/admin/customers/add}"><i class="fas fa-user-plus"></i> Thêm khách hàng</a></li>
-                        <li><a th:href="@{/admin/customers/categories}"><i class="fas fa-user-tag"></i> Phân loại khách hàng</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a href="#newsSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="fas fa-newspaper"></i> Tin tức
-                    </a>
-                    <ul class="collapse list-unstyled" id="newsSubmenu">
-                        <li><a th:href="@{/admin/news/list}"><i class="fas fa-list"></i> Danh sách tin tức</a></li>
-                        <li><a th:href="@{/admin/news/add}"><i class="fas fa-plus"></i> Thêm tin tức</a></li>
-                        <li><a th:href="@{/admin/news/categories}"><i class="fas fa-tags"></i> Danh mục tin tức</a></li>
-                    </ul>
-                </li>
-                <li>
-                    <a th:href="@{/admin/statistics}"><i class="fas fa-chart-bar"></i> Thống kê</a>
-                </li>
-                <li>
-                    <a href="#settingSubmenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle">
-                        <i class="fas fa-cog"></i> Cài đặt
-                    </a>
-                    <ul class="collapse list-unstyled" id="settingSubmenu">
-                        <li><a th:href="@{/admin/settings/admins}"><i class="fas fa-user-shield"></i> Quản trị viên</a></li>
-                        <li><a th:href="@{/admin/settings/permissions}"><i class="fas fa-lock"></i> Phân quyền</a></li>
-                        <li><a th:href="@{/admin/settings/website}"><i class="fas fa-globe"></i> Cài đặt trang web</a></li>
-                    </ul>
-                </li>
-            </ul>
-        </nav>
+       <!-- Sidebar  -->
+       <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
 
         <!-- Page Content  -->
         <div class="main-content">
-            <nav class="navbar navbar-expand-lg">
-                <div class="container-fluid">
-                    <button type="button" id="sidebarCollapse" class="btn btn-primary">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                        <ul class="nav navbar-nav ms-auto">
-                            <li class="nav-item">
-                                <a class="nav-link" href="#"><i class="fas fa-bell"></i> <span class="badge bg-danger">5</span></a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="#"><i class="fas fa-envelope"></i> <span class="badge bg-primary">3</span></a>
-                            </li>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <img src="https://via.placeholder.com/30" class="rounded-circle me-2" alt="Admin">
-                                    Admin
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user"></i> Hồ sơ</a></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog"></i> Cài đặt</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" href="#"><i class="fas fa-sign-out-alt"></i> Đăng xuất</a></li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+            <!-- Navbar -->
+            <div th:replace="~{admin/fragments/navbar :: navbar}"></div>
 
             <div class="container-fluid">
                 <div class="row">
