@@ -1,0 +1,65 @@
+<!-- Thêm phần cấu hình sản phẩm vào sau phần thông tin cơ bản -->
+<div class="product-info-tabs">
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="description-tab" data-toggle="tab" href="#description" role="tab">Mô tả</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="specification-tab" data-toggle="tab" href="#specification" role="tab">Thông số kỹ thuật</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="description" role="tabpanel">
+            <div class="product-description" th:utext="${product.description}">
+            </div>
+        </div>
+        <div class="tab-pane fade" id="specification" role="tabpanel">
+            <div class="table-responsive" th:if="${not #lists.isEmpty(product.productConfigs)}">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr th:each="config : ${product.productConfigs}">
+                            <td class="spec-name" th:text="${config.configName}"></td>
+                            <td class="spec-value" th:text="${config.value}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:if="${#lists.isEmpty(product.productConfigs)}" class="alert alert-info">
+                Sản phẩm chưa có thông số kỹ thuật
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.product-info-tabs {
+    margin-top: 30px;
+}
+.nav-tabs {
+    border-bottom: 2px solid #ddd;
+}
+.nav-tabs .nav-link {
+    border: none;
+    color: #666;
+    padding: 12px 20px;
+    font-weight: 600;
+}
+.nav-tabs .nav-link.active {
+    color: #000;
+    border-bottom: 2px solid #000;
+}
+.tab-content {
+    padding: 20px 0;
+}
+.spec-name {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    width: 30%;
+}
+.spec-value {
+    width: 70%;
+}
+.table-bordered td {
+    padding: 12px 15px;
+}
+</style> 

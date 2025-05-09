@@ -16,6 +16,9 @@ public class ProductMapper {
     @Autowired
     private ProductImagesMapper productImagesMapper;
 
+    @Autowired
+    private ProductConfigMapper productConfigMapper;
+
     public ProductDTO toDTO(Product entity) {
         if (entity == null) {
             return null;
@@ -28,8 +31,8 @@ public class ProductMapper {
         dto.setDescription(entity.getDescription());
         dto.setIdCategory(entity.getIdCategory());
         dto.setImage(entity.getImage());
-        dto.setIsActive(entity.getIsActive() != null ? entity.getIsActive() : true);
-        dto.setIsDelete(entity.getIsDelete() != null ? entity.getIsDelete() : false);
+        dto.setIsActive(entity.getIsActive());
+        dto.setIsDelete(entity.getIsDelete());
         dto.setMetaDescription(entity.getMetaDescription());
         dto.setMetaKeyword(entity.getMetaKeyword());
         dto.setMetaTitle(entity.getMetaTitle());
@@ -54,6 +57,11 @@ public class ProductMapper {
                     .collect(Collectors.toList());
             dto.setProductImages(productImagesDTOs);
         }
+
+        // Map product configs
+        if (entity.getProductConfigs() != null) {
+            dto.setProductConfigs(productConfigMapper.toDTOList(entity.getProductConfigs()));
+        }
         
         return dto;
     }
@@ -70,8 +78,8 @@ public class ProductMapper {
         entity.setDescription(dto.getDescription());
         entity.setIdCategory(dto.getIdCategory());
         entity.setImage(dto.getImage());
-        entity.setIsActive(dto.getIsActive() != null ? dto.getIsActive() : true);
-        entity.setIsDelete(dto.getIsDelete() != null ? dto.getIsDelete() : false);
+        entity.setIsActive(dto.getIsActive());
+        entity.setIsDelete(dto.getIsDelete());
         entity.setMetaDescription(dto.getMetaDescription());
         entity.setMetaKeyword(dto.getMetaKeyword());
         entity.setMetaTitle(dto.getMetaTitle());

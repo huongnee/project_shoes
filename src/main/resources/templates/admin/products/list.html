@@ -36,51 +36,63 @@
                 
                 <div class="row">
                     <div class="col-12">
-                        <form class="search-form d-flex">
-                            <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm...">
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                        <form class="search-form d-flex mb-4" method="get" th:action="@{/admin/products/list}">
+                            <input type="text" class="form-control" name="keyword" th:value="${keyword}" placeholder="Tìm kiếm sản phẩm...">
+                            <button type="submit" class="btn btn-primary ms-2"><i class="fas fa-search"></i> Tìm kiếm</button>
                         </form>
                     </div>
                 </div>
                 
-                <div class="row filters">
-                    <div class="col-md-3 mb-3">
-                        <label class="filter-label">Danh mục</label>
-                        <select class="form-select">
-                            <option value="">Tất cả danh mục</option>
-                            <option th:each="category : ${categories}" 
-                                    th:value="${category.id}" 
-                                    th:text="${category.name}">Giày thể thao</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="filter-label">Giá</label>
-                        <select class="form-select">
-                            <option value="">Tất cả mức giá</option>
-                            <option value="1">Dưới 1 triệu</option>
-                            <option value="2">1 - 2 triệu</option>
-                            <option value="3">2 - 3 triệu</option>
-                            <option value="4">Trên 3 triệu</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="filter-label">Trạng thái</label>
-                        <select class="form-select">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="1">Còn hàng</option>
-                            <option value="0">Hết hàng</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <label class="filter-label">Sắp xếp</label>
-                        <select class="form-select">
-                            <option value="name_asc">Tên (A-Z)</option>
-                            <option value="name_desc">Tên (Z-A)</option>
-                            <option value="price_asc">Giá (Thấp-Cao)</option>
-                            <option value="price_desc">Giá (Cao-Thấp)</option>
-                            <option value="date_desc">Mới nhất</option>
-                        </select>
-                    </div>
+                <div class="row filters mb-4">
+                    <form class="row" method="get" th:action="@{/admin/products/list}">
+                        <!-- Giữ lại keyword nếu có -->
+                        <input type="hidden" name="keyword" th:value="${keyword}">
+                        
+                        <div class="col-md-3 mb-3">
+                            <label class="filter-label">Danh mục</label>
+                            <select class="form-select" name="category" th:value="${selectedCategory}">
+                                <option value="">Tất cả danh mục</option>
+                                <option th:each="category : ${categories}" 
+                                        th:value="${category.id}" 
+                                        th:text="${category.name}"
+                                        th:selected="${selectedCategory != null && selectedCategory == category.id}">
+                                    Giày thể thao
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label class="filter-label">Giá</label>
+                            <select class="form-select" name="price" th:value="${selectedPrice}">
+                                <option value="">Tất cả mức giá</option>
+                                <option value="1" th:selected="${selectedPrice == '1'}">Dưới 1 triệu</option>
+                                <option value="2" th:selected="${selectedPrice == '2'}">1 - 2 triệu</option>
+                                <option value="3" th:selected="${selectedPrice == '3'}">2 - 3 triệu</option>
+                                <option value="4" th:selected="${selectedPrice == '4'}">Trên 3 triệu</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="filter-label">Trạng thái</label>
+                            <select class="form-select" name="status" th:value="${selectedStatus}">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="instock" th:selected="${selectedStatus == 'instock'}">Còn hàng</option>
+                                <option value="outofstock" th:selected="${selectedStatus == 'outofstock'}">Hết hàng</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="filter-label">Sắp xếp</label>
+                            <select class="form-select" name="sort" th:value="${selectedSort}">
+                                <option value="name_asc" th:selected="${selectedSort == 'name_asc'}">Tên (A-Z)</option>
+                                <option value="name_desc" th:selected="${selectedSort == 'name_desc'}">Tên (Z-A)</option>
+                                <option value="price_asc" th:selected="${selectedSort == 'price_asc'}">Giá (Thấp-Cao)</option>
+                                <option value="price_desc" th:selected="${selectedSort == 'price_desc'}">Giá (Cao-Thấp)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> Áp dụng bộ lọc
+                            </button>
+                        </div>
+                    </form>
                 </div>
                 
                 <div class="row">

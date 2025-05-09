@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chi tiết sản phẩm - Shoes Store</title>
+    <title>Chi tiết sản phẩm</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/static/css/admin.css}">
@@ -12,100 +14,103 @@
     <div class="wrapper">
         <!-- Sidebar -->
         <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
+        
         <!-- Page Content -->
         <div class="main-content">
             <!-- Navbar -->
             <div th:replace="~{admin/fragments/navbar :: navbar}"></div>
 
-            <div class="container-fluid">
-                <div class="row">
-                    <div class="col-12">
-                        <a th:href="@{/admin/products/list}" class="btn btn-outline-primary mb-3">
-                            <i class="fas fa-arrow-left"></i> Quay lại danh sách
-                        </a>
-                        <h2 class="mb-4">Chi tiết sản phẩm</h2>
+            <div layout:fragment="content">
+                <div class="container-fluid">
+                    <!-- Page Heading -->
+                    <h1 class="h3 mb-2 text-gray-800">Chi tiết sản phẩm</h1>
+
+                    <!-- Thông báo -->
+                    <div th:if="${success}" class="alert alert-success" role="alert">
+                        <span th:text="${success}"></span>
                     </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-8">
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                Thông tin cơ bản
-                            </div>
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-md-4 fw-bold">Tên sản phẩm:</div>
-                                    <div class="col-md-8" th:text="${product.name}">Giày Nike Air Max</div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-4 fw-bold">Mô tả ngắn:</div>
-                                    <div class="col-md-8" th:text="${product.notes}">Mô tả ngắn về sản phẩm</div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-4 fw-bold">Mô tả chi tiết:</div>
-                                    <div class="col-md-8" th:utext="${product.description}">Mô tả chi tiết về sản phẩm</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                Hình ảnh sản phẩm
-                            </div>
-                            <div class="card-body">
-                                <div class="row">
-                                    <div th:each="image : ${product.productImages}" class="col-md-4 mb-3">
-                                        <img th:src="@{${image.urlImg}}" class="img-fluid" th:alt="${image.name}">
-                                    </div>
-                                    <div th:if="${#lists.isEmpty(product.productImages)}" class="col-12">
-                                        <p class="text-muted">Chưa có hình ảnh</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                    <div th:if="${error}" class="alert alert-danger" role="alert">
+                        <span th:text="${error}"></span>
                     </div>
 
-                    <div class="col-lg-4">
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                Thông tin bổ sung
+                    <!-- Chi tiết sản phẩm -->
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Thông tin sản phẩm</h6>
+                            <div>
+                                <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Sửa
+                                </a>
+                                <a th:href="@{/admin/products/list}" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-arrow-left"></i> Quay lại
+                                </a>
                             </div>
-                            <div class="card-body">
-                                <div class="row mb-3">
-                                    <div class="col-md-6 fw-bold">Danh mục:</div>
-                                    <div class="col-md-6" th:text="${product.categoryName}">Giày thể thao</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <strong>Tên sản phẩm:</strong>
+                                        <span th:text="${product.name}"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Danh mục:</strong>
+                                        <span th:text="${product.categoryName}"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Giá:</strong>
+                                        <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Số lượng:</strong>
+                                        <span th:text="${product.quantity}"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <strong>Trạng thái:</strong>
+                                        <span th:if="${product.isActive}" class="badge badge-success">Đang hoạt động</span>
+                                        <span th:unless="${product.isActive}" class="badge badge-danger">Không hoạt động</span>
+                                    </div>
                                 </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6 fw-bold">Giá bán:</div>
-                                    <div class="col-md-6" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT') + 'đ'}">2,800,000đ</div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6 fw-bold">Số lượng:</div>
-                                    <div class="col-md-6" th:text="${product.quantity}">50</div>
-                                </div>
-                                <div class="row mb-3">
-                                    <div class="col-md-6 fw-bold">Trạng thái:</div>
-                                    <div class="col-md-6">
-                                        <span th:if="${product.isActive}" class="badge bg-success">Đang hoạt động</span>
-                                        <span th:unless="${product.isActive}" class="badge bg-danger">Không hoạt động</span>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <strong>Ảnh sản phẩm:</strong>
+                                        <img th:if="${product.image}" th:src="${product.image}" class="img-fluid" style="max-width: 200px;">
+                                        <span th:unless="${product.image}" class="text-muted">Chưa có ảnh</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="card mb-4">
-                            <div class="card-header">
-                                Hành động
+                            <!-- Thông số cấu hình -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h6 class="font-weight-bold">Thông số cấu hình</h6>
+                                    <div class="table-responsive" th:if="${product.productConfigs != null and not #lists.isEmpty(product.productConfigs)}">
+                                        <table class="table table-bordered">
+                                            <thead>
+                                                <tr>
+                                                    <th>Tên cấu hình</th>
+                                                    <th>Giá trị</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr th:each="config : ${product.productConfigs}">
+                                                    <td th:text="${config.configName}"></td>
+                                                    <td th:text="${config.value}"></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div th:if="${#lists.isEmpty(product.productConfigs)}" class="alert alert-info">
+                                        Sản phẩm chưa có thông số cấu hình
+                                    </div>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <div class="d-grid gap-2">
-                                    <a th:href="@{/admin/products/edit/{id}(id=${product.id})}" class="btn btn-primary">
-                                        <i class="fas fa-edit"></i> Chỉnh sửa
-                                    </a>
-                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
-                                        <i class="fas fa-trash"></i> Xóa
-                                    </button>
+
+                            <!-- Mô tả sản phẩm -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <h6 class="font-weight-bold">Mô tả sản phẩm</h6>
+                                    <div th:utext="${product.description}" class="product-description"></div>
                                 </div>
                             </div>
                         </div>
@@ -115,27 +120,9 @@
         </div>
     </div>
 
-    <!-- Modal xác nhận xóa -->
-    <div class="modal fade" id="deleteModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Xác nhận xóa</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form th:action="@{/admin/products/delete/{id}(id=${product.id})}" method="post" style="display: inline;">
-                        <button type="submit" class="btn btn-danger">Xóa</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
+    <!-- Bootstrap core JavaScript-->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/static/js/admin.js}"></script>
 </body>
 </html> 

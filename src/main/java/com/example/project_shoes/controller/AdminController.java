@@ -1,12 +1,6 @@
 package com.example.project_shoes.controller;
 
-import com.example.project_shoes.dto.CategoryDTO;
-import com.example.project_shoes.dto.ConfigurationsDTO;
-import com.example.project_shoes.dto.CustomerDTO;
-import com.example.project_shoes.dto.ProductDTO;
-import com.example.project_shoes.dto.OrdersDTO;
-import com.example.project_shoes.dto.TransportMethodDTO;
-import com.example.project_shoes.dto.PaymentMethodDTO;
+import com.example.project_shoes.dto.*;
 import com.example.project_shoes.service.CategoryService;
 import com.example.project_shoes.service.ConfigurationsService;
 import com.example.project_shoes.service.ProductService;
@@ -25,13 +19,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 // Thêm import cho NewsService và NewsDTO
-import com.example.project_shoes.dto.NewsDTO;
 import com.example.project_shoes.service.NewsService;
 
-import com.example.project_shoes.dto.NewsCategoryDTO;
 import com.example.project_shoes.service.NewsCategoryService;
 
-import com.example.project_shoes.dto.DashboardStatsDTO;
 import com.example.project_shoes.service.DashboardService;
 
 import org.springframework.validation.BindingResult;
@@ -49,9 +40,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.example.project_shoes.dto.ProductImagesDTO;
 import java.util.UUID;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.temporal.TemporalAdjusters;
+import java.time.DayOfWeek;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/admin")
@@ -104,160 +98,214 @@ public String dashboard(Model model) {
     }
 
     @GetMapping({"/products", "/products/list", "/products/list.html"})
-    public String productsList(Model model) {
+    public String productsList(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long category,
+            @RequestParam(required = false) String price,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            Model model) {
         model.addAttribute("activeMenu", "products");
         model.addAttribute("activeSubMenu", "products-list");
         try {
-            List<ProductDTO> products = productService.findAllActive();
-            System.out.println("Số lượng sản phẩm lấy được: " + products.size());
+            List<ProductDTO> products;
             
-            if (products.isEmpty()) {
-                System.out.println("Không có sản phẩm nào được tìm thấy từ cơ sở dữ liệu!");
-                model.addAttribute("warning", "Không tìm thấy sản phẩm nào trong cơ sở dữ liệu. Vui lòng kiểm tra kết nối database hoặc thêm sản phẩm mới.");
+            // Xử lý tìm kiếm
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                products = productService.searchByName(keyword.trim());
+                model.addAttribute("keyword", keyword);
             } else {
-                for (ProductDTO product : products) {
-                    System.out.println("Sản phẩm: " + product.getId() + " - " + product.getName() + 
-                                      ", Danh mục: " + product.getCategoryName() + 
-                                      ", Ảnh: " + product.getImage() + 
-                                      ", Giá: " + product.getPrice() + 
-                                      ", Số lượng: " + product.getQuantity() + 
-                                      ", isActive: " + product.getIsActive() + 
-                                      ", isDelete: " + product.getIsDelete());
+                products = productService.findAllActive();
+            }
+            
+            // Xử lý lọc theo danh mục
+            if (category != null) {
+                products = products.stream()
+                        .filter(p -> p.getIdCategory().equals(category))
+                        .collect(Collectors.toList());
+            }
+            
+            // Xử lý lọc theo giá
+            if (price != null) {
+                BigDecimal price1M = new BigDecimal("1000000");
+                BigDecimal price2M = new BigDecimal("2000000");
+                BigDecimal price3M = new BigDecimal("3000000");
+                
+                switch (price) {
+                    case "1":
+                        products = products.stream()
+                                .filter(p -> p.getPrice().compareTo(price1M) < 0)
+                                .collect(Collectors.toList());
+                        break;
+                    case "2":
+                        products = products.stream()
+                                .filter(p -> p.getPrice().compareTo(price1M) >= 0 && p.getPrice().compareTo(price2M) < 0)
+                                .collect(Collectors.toList());
+                        break;
+                    case "3":
+                        products = products.stream()
+                                .filter(p -> p.getPrice().compareTo(price2M) >= 0 && p.getPrice().compareTo(price3M) < 0)
+                                .collect(Collectors.toList());
+                        break;
+                    case "4":
+                        products = products.stream()
+                                .filter(p -> p.getPrice().compareTo(price3M) >= 0)
+                                .collect(Collectors.toList());
+                        break;
                 }
+            }
+            
+            // Xử lý lọc theo trạng thái
+            if (status != null) {
+                switch (status) {
+                    case "instock":
+                        products = products.stream()
+                                .filter(p -> p.getQuantity() > 0)
+                                .collect(Collectors.toList());
+                        break;
+                    case "outofstock":
+                        products = products.stream()
+                                .filter(p -> p.getQuantity() == 0)
+                                .collect(Collectors.toList());
+                        break;
+                }
+            }
+            
+            // Xử lý sắp xếp
+            if (sort != null) {
+                switch (sort) {
+                    case "name_asc":
+                        products.sort((a, b) -> a.getName().compareTo(b.getName()));
+                        break;
+                    case "name_desc":
+                        products.sort((a, b) -> b.getName().compareTo(a.getName()));
+                        break;
+                    case "price_asc":
+                        products.sort((a, b) -> a.getPrice().compareTo(b.getPrice()));
+                        break;
+                    case "price_desc":
+                        products.sort((a, b) -> b.getPrice().compareTo(a.getPrice()));
+                        break;
+                }
+            }
+
+            if (products.isEmpty()) {
+                model.addAttribute("warning", "Không tìm thấy sản phẩm nào phù hợp với điều kiện tìm kiếm.");
             }
             
             // Lấy danh sách danh mục cho bộ lọc
             List<CategoryDTO> categories = categoryService.findAllActive();
             model.addAttribute("categories", categories);
-            
             model.addAttribute("products", products);
+            
+            // Thêm các tham số lọc vào model để duy trì trạng thái
+            model.addAttribute("selectedCategory", category);
+            model.addAttribute("selectedPrice", price);
+            model.addAttribute("selectedStatus", status);
+            model.addAttribute("selectedSort", sort);
+            
+            return "admin/products/list";
         } catch (Exception e) {
-            System.err.println("Lỗi khi lấy danh sách sản phẩm: " + e.getMessage());
-            e.printStackTrace();
             model.addAttribute("error", "Có lỗi xảy ra khi tải danh sách sản phẩm: " + e.getMessage());
-            model.addAttribute("products", new ArrayList<>());
+            return "admin/products/list";
         }
-        return "admin/products/list";
     }
     
     @GetMapping("/products/add")
     public String productsAdd(Model model) {
         model.addAttribute("activeMenu", "products");
-        try {
-            // Lấy danh sách danh mục để hiển thị trong dropdown
-            List<CategoryDTO> categories = categoryService.findAllActive();
-            if (categories.isEmpty()) {
-                System.out.println("Không có danh mục nào được tìm thấy từ cơ sở dữ liệu!");
-                model.addAttribute("warningCategory", "Không tìm thấy danh mục nào trong cơ sở dữ liệu.");
-            } else {
-                System.out.println("Số lượng danh mục lấy được: " + categories.size());
-            }
-            
-            // Lấy danh sách cấu hình để hiển thị trong form
-            List<ConfigurationsDTO> configurations = configurationsService.findAllActive();
-            if (configurations.isEmpty()) {
-                System.out.println("Không có cấu hình nào được tìm thấy từ cơ sở dữ liệu!");
-                model.addAttribute("warningConfig", "Không tìm thấy cấu hình nào trong cơ sở dữ liệu.");
-            } else {
-                System.out.println("Số lượng cấu hình lấy được: " + configurations.size());
-            }
-            
-            model.addAttribute("categories", categories);
-            model.addAttribute("configurations", configurations);
-            model.addAttribute("product", new ProductDTO()); // Truyền đối tượng rỗng để binding form
-        } catch (Exception e) {
-            System.err.println("Lỗi khi lấy dữ liệu cho trang thêm sản phẩm: " + e.getMessage());
-            e.printStackTrace();
-            model.addAttribute("error", "Có lỗi xảy ra khi tải dữ liệu: " + e.getMessage());
-        }
+        model.addAttribute("activeSubMenu", "products-add");
+        model.addAttribute("product", new ProductDTO());
+        
+        // Lấy danh sách danh mục
+        List<CategoryDTO> categories = categoryService.findAllActive();
+        model.addAttribute("categories", categories);
+        
+        // Lấy danh sách cấu hình đang active
+        List<ConfigurationsDTO> configurations = configurationsService.findAllActive();
+        model.addAttribute("configurations", configurations);
+        
         return "admin/products/add";
     }
     
     @PostMapping("/products/add")
-    public String saveProduct(@ModelAttribute ProductDTO productDTO, RedirectAttributes redirectAttributes) {
+    public String saveProduct(@ModelAttribute ProductDTO productDTO, 
+                            @RequestParam("imageFiles") List<MultipartFile> imageFiles,
+                            @RequestParam Map<String, String> configValues,
+                            RedirectAttributes redirectAttributes) {
         try {
-            System.out.println("Đang lưu sản phẩm: " + productDTO.getName());
+            // Xử lý lưu sản phẩm
+            ProductDTO savedProduct = productService.save(productDTO);
+            Long productId = savedProduct.getId();
             
-            // Đặt giá trị mặc định
-            if (productDTO.getIsActive() == null) {
-                productDTO.setIsActive(true);
-            }
-            productDTO.setIsDelete(false);
-            productDTO.setCreatedDate(LocalDateTime.now());
-            productDTO.setCreatedBy(1L);
-            
-            // Xử lý file upload
-            if (productDTO.getImageFiles() != null && !productDTO.getImageFiles().isEmpty()) {
+            // Xử lý lưu ảnh
+            if (imageFiles != null && !imageFiles.isEmpty()) {
                 List<ProductImagesDTO> productImages = new ArrayList<>();
+                String uploadDir = "src/main/resources/static/images/products/";
                 
-                try {
-                    // Tạo thư mục nếu chưa tồn tại
-                    String uploadDir = "src/main/resources/static/images/products/";
-                    Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
-                    if (!Files.exists(uploadPath)) {
-                        Files.createDirectories(uploadPath);
+                for (MultipartFile file : imageFiles) {
+                    if (!file.isEmpty()) {
+                        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
+                        Path filePath = Paths.get(uploadDir + fileName);
+                        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                        
+                        ProductImagesDTO imageDTO = new ProductImagesDTO();
+                        imageDTO.setIdProduct(productId);
+                        imageDTO.setName(fileName);
+                        imageDTO.setUrlImg("/static/images/products/" + fileName);
+                        productImages.add(imageDTO);
                     }
+                }
+                
+                if (!productImages.isEmpty()) {
+                    // Cập nhật ảnh chính cho sản phẩm
+                    productDTO.setImage(productImages.get(0).getUrlImg());
+                    productService.updateMainImage(productId, productImages.get(0).getUrlImg());
                     
-                    // Xử lý từng file
-                    for (MultipartFile file : productDTO.getImageFiles()) {
-                        if (!file.isEmpty()) {
-                            // Lấy tên file gốc và làm sạch nó
-                            String originalFilename = file.getOriginalFilename();
-                            String cleanedFilename = originalFilename.replaceAll("[^a-zA-Z0-9.-]", "_");
-                            String extension = cleanedFilename.substring(cleanedFilename.lastIndexOf("."));
-                            
-                            // Tạo tên file mới bằng cách thêm timestamp để tránh trùng lặp
-                            String newFileName = System.currentTimeMillis() + "_" + cleanedFilename;
-                            
-                            // Lưu file
-                            Path filePath = uploadPath.resolve(newFileName);
-                            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                            
-                            // Đường dẫn URL cho ảnh
-                            String imageUrl = "/static/images/products/" + newFileName;
-                            
-                            // Tạo ProductImagesDTO với đường dẫn đúng
-                            ProductImagesDTO imageDTO = new ProductImagesDTO();
-                            imageDTO.setName(originalFilename); // Lưu tên gốc
-                            imageDTO.setUrlImg(imageUrl);
-                            productImages.add(imageDTO);
-                            
-                            // Đặt ảnh đại diện cho sản phẩm (ảnh đầu tiên)
-                            if (productDTO.getImage() == null) {
-                                productDTO.setImage(imageUrl);
-                            }
-                        }
-                    }
-                    
-                    // Gán danh sách ảnh cho sản phẩm
-                    if (!productImages.isEmpty()) {
-                        productDTO.setProductImages(productImages);
-                    }
-                } catch (IOException e) {
-                    System.err.println("Lỗi khi xử lý file: " + e.getMessage());
-                    // Không throw exception ở đây, tiếp tục lưu sản phẩm
+                    // Lưu các ảnh phụ
+                    productService.saveProductImages(productImages);
                 }
             }
             
-            // Lưu sản phẩm
-            ProductDTO savedProduct = productService.save(productDTO);
-            System.out.println("Đã lưu sản phẩm: " + savedProduct.getId() + " - " + savedProduct.getName());
+            // Xử lý lưu cấu hình sản phẩm
+            List<ProductConfigDTO> productConfigs = new ArrayList<>();
+            System.out.println("Số lượng configValues: " + configValues.size());
+            configValues.forEach((key, value) -> {
+                System.out.println("Đang xử lý key: " + key + ", value: " + value);
+                if (value != null && !value.trim().isEmpty()) {
+                    try {
+                        // Lấy ID cấu hình từ key (configValues[1] -> 1)
+                        String idConfigStr = key.substring(key.indexOf("[") + 1, key.indexOf("]"));
+                        Long idConfig = Long.parseLong(idConfigStr);
+                        
+                        System.out.println("Đã parse được idConfig: " + idConfig);
+                        
+                        ProductConfigDTO configDTO = new ProductConfigDTO();
+                        configDTO.setIdProduct(productId);
+                        configDTO.setIdConfig(idConfig);
+                        configDTO.setValue(value.trim());
+                        productConfigs.add(configDTO);
+                        
+                        System.out.println("Đã thêm config vào list: " + configDTO);
+                    } catch (Exception e) {
+                        System.err.println("Lỗi xử lý key cấu hình: " + key + ", chi tiết: " + e.getMessage());
+                        e.printStackTrace();
+                    }
+                }
+            });
             
-            redirectAttributes.addFlashAttribute("success", "Sản phẩm " + savedProduct.getName() + " đã được thêm thành công");
-            return "redirect:/admin/products/list";
-            
-        } catch (Exception e) {
-            System.err.println("Lỗi khi lưu sản phẩm: " + e.getMessage());
-            e.printStackTrace();
-            
-            // Kiểm tra xem sản phẩm đã được lưu thành công chưa
-            if (productDTO.getId() != null) {
-                redirectAttributes.addFlashAttribute("success", "Sản phẩm đã được thêm thành công");
-                return "redirect:/admin/products/list";
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra khi lưu sản phẩm: " + e.getMessage());
-                return "redirect:/admin/products/add";
+            System.out.println("Số lượng productConfigs sau khi xử lý: " + productConfigs.size());
+            if (!productConfigs.isEmpty()) {
+                System.out.println("Bắt đầu lưu product configs");
+                productService.saveProductConfigs(productConfigs);
+                System.out.println("Đã lưu xong product configs");
             }
+            
+            redirectAttributes.addFlashAttribute("success", "Thêm sản phẩm thành công!");
+            return "redirect:/admin/products/list";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Có lỗi xảy ra: " + e.getMessage());
+            return "redirect:/admin/products/add";
         }
     }
     
@@ -605,21 +653,129 @@ public String dashboard(Model model) {
 
     // URL /admin/orders/list sẽ hiển thị trang danh sách đơn hàng
     @GetMapping("/orders/list")
-    public String ordersListRedirect(Model model) {
+    public String ordersList(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String timeRange,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String sort,
+            Model model) {
+        
+        // Thêm active menu
         model.addAttribute("activeMenu", "orders");
         model.addAttribute("activeSubMenu", "orders-list");
-        List<OrdersDTO> orders = ordersService.findAll();
-        model.addAttribute("orders", orders);
-        return "admin/orders/list";
+        
+        try {
+            List<OrdersDTO> orders = ordersService.findAll();
+            
+            // Xử lý tìm kiếm
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                String searchKeyword = keyword.toLowerCase().trim();
+                orders = orders.stream()
+                        .filter(o -> (o.getIOrders() != null && o.getIOrders().toLowerCase().contains(searchKeyword)) ||
+                                   (o.getNameReceiver() != null && o.getNameReceiver().toLowerCase().contains(searchKeyword)))
+                        .collect(Collectors.toList());
+                model.addAttribute("keyword", keyword);
+            }
+            
+            // Xử lý lọc theo thời gian
+            if (timeRange != null) {
+                LocalDateTime now = LocalDateTime.now();
+                switch (timeRange) {
+                    case "today":
+                        orders = orders.stream()
+                                .filter(o -> o.getOrdersDate().toLocalDate().equals(now.toLocalDate()))
+                                .collect(Collectors.toList());
+                        break;
+                    case "yesterday":
+                        orders = orders.stream()
+                                .filter(o -> o.getOrdersDate().toLocalDate().equals(now.minusDays(1).toLocalDate()))
+                                .collect(Collectors.toList());
+                        break;
+                    case "thisweek":
+                        LocalDateTime startOfWeek = now.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                        orders = orders.stream()
+                                .filter(o -> !o.getOrdersDate().isBefore(startOfWeek))
+                                .collect(Collectors.toList());
+                        break;
+                    case "thismonth":
+                        LocalDateTime startOfMonth = now.with(TemporalAdjusters.firstDayOfMonth());
+                        orders = orders.stream()
+                                .filter(o -> !o.getOrdersDate().isBefore(startOfMonth))
+                                .collect(Collectors.toList());
+                        break;
+                    case "lastmonth":
+                        LocalDateTime startOfLastMonth = now.minusMonths(1).with(TemporalAdjusters.firstDayOfMonth());
+                        LocalDateTime endOfLastMonth = startOfLastMonth.with(TemporalAdjusters.lastDayOfMonth());
+                        orders = orders.stream()
+                                .filter(o -> !o.getOrdersDate().isBefore(startOfLastMonth) && !o.getOrdersDate().isAfter(endOfLastMonth))
+                                .collect(Collectors.toList());
+                        break;
+                }
+            }
+            
+            // Xử lý lọc theo trạng thái
+            if (status != null) {
+                switch (status) {
+                    case "pending":
+                        orders = orders.stream().filter(o -> o.getStatus() == 0).collect(Collectors.toList());
+                        break;
+                    case "confirmed":
+                        orders = orders.stream().filter(o -> o.getStatus() == 1).collect(Collectors.toList());
+                        break;
+                    case "shipping":
+                        orders = orders.stream().filter(o -> o.getStatus() == 2).collect(Collectors.toList());
+                        break;
+                    case "completed":
+                        orders = orders.stream().filter(o -> o.getStatus() == 3).collect(Collectors.toList());
+                        break;
+                    case "cancelled":
+                        orders = orders.stream().filter(o -> o.getStatus() == 4).collect(Collectors.toList());
+                        break;
+                }
+            }
+            
+            // Xử lý sắp xếp
+            if (sort != null) {
+                switch (sort) {
+                    case "newest":
+                        orders.sort((a, b) -> b.getOrdersDate().compareTo(a.getOrdersDate()));
+                        break;
+                    case "oldest":
+                        orders.sort((a, b) -> a.getOrdersDate().compareTo(b.getOrdersDate()));
+                        break;
+                    case "total_asc":
+                        orders.sort((a, b) -> a.getTotalMoney().compareTo(b.getTotalMoney()));
+                        break;
+                    case "total_desc":
+                        orders.sort((a, b) -> b.getTotalMoney().compareTo(a.getTotalMoney()));
+                        break;
+                }
+            }
+
+            model.addAttribute("orders", orders);
+            model.addAttribute("selectedTimeRange", timeRange);
+            model.addAttribute("selectedStatus", status);
+            model.addAttribute("selectedSort", sort);
+            
+            return "admin/orders/list";
+        } catch (Exception e) {
+            model.addAttribute("error", "Có lỗi xảy ra khi tải danh sách đơn hàng: " + e.getMessage());
+            return "admin/orders/list";
+        }
     }
 
-    // Quản lý đơn hàng
-    @GetMapping("/orders")
-    public String ordersList(Model model) {
-        model.addAttribute("activeMenu", "orders");
-        List<OrdersDTO> orders = ordersService.findAll();
-        model.addAttribute("orders", orders);
-        return "admin/orders/list";
+    @PostMapping("/orders/{id}/delete")
+    public String deleteOrder(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("activeMenu", "orders");
+        boolean deleted = ordersService.delete(id);
+        
+        if (deleted) {
+            redirectAttributes.addFlashAttribute("success", "Xóa đơn hàng thành công");
+        } else {
+            redirectAttributes.addFlashAttribute("error", "Không thể xóa đơn hàng");
+        }
+        
+        return "redirect:/admin/orders/list";
     }
     
     @GetMapping("/orders/{id}")
@@ -667,20 +823,6 @@ public String dashboard(Model model) {
         
         redirectAttributes.addFlashAttribute("success", statusMessage);
         return "redirect:/admin/orders/" + id;
-    }
-    
-    @PostMapping("/orders/{id}/delete")
-    public String deleteOrder(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("activeMenu", "orders");
-        boolean deleted = ordersService.delete(id);
-        
-        if (deleted) {
-            redirectAttributes.addFlashAttribute("success", "Xóa đơn hàng thành công");
-        } else {
-            redirectAttributes.addFlashAttribute("error", "Không thể xóa đơn hàng");
-        }
-        
-        return "redirect:/admin/orders/list";
     }
 
     @GetMapping("/orders/transport")

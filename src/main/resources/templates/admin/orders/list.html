@@ -20,181 +20,198 @@
             <div th:replace="~{admin/fragments/navbar :: navbar}"></div>
 
             <div class="container-fluid">
-                <div class="d-sm-flex align-items-center justify-content-between mb-4">
-                    <h1 class="h3 mb-0 text-gray-800">Quản Lý Đơn Hàng</h1>
-                    <a href="#" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                        <i class="fas fa-download fa-sm text-white-50"></i> Xuất Báo Cáo
-                    </a>
-                </div>
-
-                <!-- Success/Error messages -->
-                <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-                    <span th:text="${success}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <span th:text="${error}"></span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-
-                <!-- Orders Filter -->
-                <div class="card mb-4">
-                    <div class="card-header">
-                        <h6 class="mb-0">Bộ lọc đơn hàng</h6>
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="mb-4">Quản Lý Đơn Hàng</h2>
                     </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Thời gian</label>
-                                <select class="form-select form-select-sm">
-                                    <option value="all">Tất cả</option>
-                                    <option value="today">Hôm nay</option>
-                                    <option value="week">Tuần này</option>
-                                    <option value="month">Tháng này</option>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Trạng thái</label>
-                                <select class="form-select form-select-sm">
-                                    <option value="all">Tất cả</option>
-                                    <option value="0">Chờ xác nhận</option>
-                                    <option value="1">Đã xác nhận</option>
-                                    <option value="2">Đang giao hàng</option>
-                                    <option value="3">Đã giao hàng</option>
-                                    <option value="4">Đã hủy</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Tìm kiếm</label>
-                                <input type="text" class="form-control form-control-sm" placeholder="Tìm kiếm theo mã đơn hàng, tên khách hàng...">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="button" class="btn btn-primary btn-sm w-100">Áp dụng</button>
-                            </div>
+                </div>
+
+                <div class="alert alert-danger" th:if="${error}" th:text="${error}">
+                    Có lỗi xảy ra khi tải danh sách đơn hàng
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <form class="search-form d-flex mb-4" method="get" th:action="@{/admin/orders/list}">
+                            <input type="text" class="form-control" name="keyword" th:value="${keyword}" 
+                                   placeholder="Tìm kiếm theo mã đơn hàng, tên khách hàng...">
+                            <button type="submit" class="btn btn-primary ms-2">
+                                <i class="fas fa-search"></i> Tìm kiếm
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="row filters mb-4">
+                    <form class="row" method="get" th:action="@{/admin/orders/list}">
+                        <!-- Giữ lại keyword nếu có -->
+                        <input type="hidden" name="keyword" th:value="${keyword}">
+                        
+                        <div class="col-md-3 mb-3">
+                            <label class="filter-label">Thời gian</label>
+                            <select class="form-select" name="timeRange" th:value="${selectedTimeRange}">
+                                <option value="">Tất cả thời gian</option>
+                                <option value="today" th:selected="${selectedTimeRange == 'today'}">Hôm nay</option>
+                                <option value="yesterday" th:selected="${selectedTimeRange == 'yesterday'}">Hôm qua</option>
+                                <option value="thisweek" th:selected="${selectedTimeRange == 'thisweek'}">Tuần này</option>
+                                <option value="thismonth" th:selected="${selectedTimeRange == 'thismonth'}">Tháng này</option>
+                                <option value="lastmonth" th:selected="${selectedTimeRange == 'lastmonth'}">Tháng trước</option>
+                            </select>
                         </div>
-                    </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label class="filter-label">Trạng thái</label>
+                            <select class="form-select" name="status" th:value="${selectedStatus}">
+                                <option value="">Tất cả trạng thái</option>
+                                <option value="pending" th:selected="${selectedStatus == 'pending'}">Chờ xác nhận</option>
+                                <option value="confirmed" th:selected="${selectedStatus == 'confirmed'}">Đã xác nhận</option>
+                                <option value="shipping" th:selected="${selectedStatus == 'shipping'}">Đang giao hàng</option>
+                                <option value="completed" th:selected="${selectedStatus == 'completed'}">Đã giao hàng</option>
+                                <option value="cancelled" th:selected="${selectedStatus == 'cancelled'}">Đã hủy</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3 mb-3">
+                            <label class="filter-label">Sắp xếp</label>
+                            <select class="form-select" name="sort" th:value="${selectedSort}">
+                                <option value="newest" th:selected="${selectedSort == 'newest'}">Mới nhất</option>
+                                <option value="oldest" th:selected="${selectedSort == 'oldest'}">Cũ nhất</option>
+                                <option value="total_asc" th:selected="${selectedSort == 'total_asc'}">Tổng tiền (Thấp-Cao)</option>
+                                <option value="total_desc" th:selected="${selectedSort == 'total_desc'}">Tổng tiền (Cao-Thấp)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3 mb-3 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> Áp dụng bộ lọc
+                            </button>
+                        </div>
+                    </form>
                 </div>
 
-                <!-- Orders list -->
-                <div class="card">
-                    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-                        <h6 class="m-0 font-weight-bold text-primary">Danh sách đơn hàng</h6>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-hover">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Mã đơn hàng</th>
-                                        <th>Khách hàng</th>
-                                        <th>Ngày đặt</th>
-                                        <th>Tổng tiền</th>
-                                        <th>Phương thức thanh toán</th>
-                                        <th>Trạng thái</th>
-                                        <th>Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr th:each="order : ${orders}">
-                                        <td th:text="${order.iOrders}">ORD123456</td>
-                                        <td th:text="${order.nameReceiver}">Nguyễn Văn A</td>
-                                        <td th:text="${#temporals.format(order.ordersDate, 'dd/MM/yyyy HH:mm')}">01/01/2023 14:30</td>
-                                        <td th:text="${#numbers.formatDecimal(order.totalMoney, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">500,000 VNĐ</td>
-                                        <td th:text="${order.paymentMethodName}">COD</td>
-                                        <td>
-                                            <span th:switch="${order.status}">
-                                                <span th:case="0" class="badge-status badge-pending">Chờ xác nhận</span>
-                                                <span th:case="1" class="badge-status badge-processing">Đã xác nhận</span>
-                                                <span th:case="2" class="badge-status badge-shipping">Đang giao hàng</span>
-                                                <span th:case="3" class="badge-status badge-completed">Đã giao hàng</span>
-                                                <span th:case="4" class="badge-status badge-cancelled">Đã hủy</span>
-                                                <span th:case="*" class="badge-status">Không xác định</span>
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <a th:href="@{'/admin/orders/' + ${order.id}}" class="btn-action btn-view" title="Xem chi tiết">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            <button type="button" class="btn-action btn-edit" title="Cập nhật trạng thái" 
-                                                    data-bs-toggle="modal" 
-                                                    th:data-bs-target="'#updateModal' + ${order.id}">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button type="button" class="btn-action btn-delete" title="Xóa đơn hàng" 
-                                                    data-bs-toggle="modal" 
-                                                    th:data-bs-target="'#deleteModal' + ${order.id}">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            
-                                            <!-- Update Status Modal -->
-                                            <div class="modal fade" th:id="'updateModal' + ${order.id}" tabindex="-1" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Cập nhật trạng thái</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <p>Cập nhật trạng thái đơn hàng <strong th:text="${order.iOrders}">ORD123456</strong></p>
-                                                            <form th:action="@{'/admin/orders/' + ${order.id} + '/update-status'}" method="post" th:id="'updateForm' + ${order.id}">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Trạng thái hiện tại:</label>
-                                                                    <span th:switch="${order.status}">
-                                                                        <span th:case="0" class="badge-status badge-pending">Chờ xác nhận</span>
-                                                                        <span th:case="1" class="badge-status badge-processing">Đã xác nhận</span>
-                                                                        <span th:case="2" class="badge-status badge-shipping">Đang giao hàng</span>
-                                                                        <span th:case="3" class="badge-status badge-completed">Đã giao hàng</span>
-                                                                        <span th:case="4" class="badge-status badge-cancelled">Đã hủy</span>
-                                                                    </span>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="mb-0">Danh sách đơn hàng</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Mã đơn hàng</th>
+                                                <th>Khách hàng</th>
+                                                <th>Ngày đặt</th>
+                                                <th>Tổng tiền</th>
+                                                <th>Phương thức thanh toán</th>
+                                                <th>Trạng thái</th>
+                                                <th>Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="order : ${orders}">
+                                                <td th:text="${order.iOrders}">ORD123456</td>
+                                                <td th:text="${order.nameReceiver}">Nguyễn Văn A</td>
+                                                <td th:text="${#temporals.format(order.ordersDate, 'dd/MM/yyyy HH:mm')}">01/01/2023 14:30</td>
+                                                <td th:text="${#numbers.formatDecimal(order.totalMoney, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">500,000 VNĐ</td>
+                                                <td th:text="${order.paymentMethodName}">COD</td>
+                                                <td>
+                                                    <span th:switch="${order.status}">
+                                                        <span th:case="0" class="badge-status badge-pending">Chờ xác nhận</span>
+                                                        <span th:case="1" class="badge-status badge-processing">Đã xác nhận</span>
+                                                        <span th:case="2" class="badge-status badge-shipping">Đang giao hàng</span>
+                                                        <span th:case="3" class="badge-status badge-completed">Đã giao hàng</span>
+                                                        <span th:case="4" class="badge-status badge-cancelled">Đã hủy</span>
+                                                        <span th:case="*" class="badge-status">Không xác định</span>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a th:href="@{'/admin/orders/' + ${order.id}}" class="btn-action btn-view" title="Xem chi tiết">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <button type="button" class="btn-action btn-edit" title="Cập nhật trạng thái" 
+                                                            data-bs-toggle="modal" 
+                                                            th:data-bs-target="'#updateModal' + ${order.id}">
+                                                        <i class="fas fa-edit"></i>
+                                                    </button>
+                                                    <button type="button" class="btn-action btn-delete" title="Xóa đơn hàng" 
+                                                            data-bs-toggle="modal" 
+                                                            th:data-bs-target="'#deleteModal' + ${order.id}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                    
+                                                    <!-- Update Status Modal -->
+                                                    <div class="modal fade" th:id="'updateModal' + ${order.id}" tabindex="-1" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Cập nhật trạng thái</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                                 </div>
-                                                                <div class="mb-3">
-                                                                    <label for="status" class="form-label">Trạng thái mới:</label>
-                                                                    <select class="form-select" name="status" id="status">
-                                                                        <option value="0" th:selected="${order.status == 0}">Chờ xác nhận</option>
-                                                                        <option value="1" th:selected="${order.status == 1}">Đã xác nhận</option>
-                                                                        <option value="2" th:selected="${order.status == 2}">Đang giao hàng</option>
-                                                                        <option value="3" th:selected="${order.status == 3}">Đã giao hàng</option>
-                                                                        <option value="4" th:selected="${order.status == 4}">Đã hủy</option>
-                                                                    </select>
+                                                                <div class="modal-body">
+                                                                    <p>Cập nhật trạng thái đơn hàng <strong th:text="${order.iOrders}">ORD123456</strong></p>
+                                                                    <form th:action="@{'/admin/orders/' + ${order.id} + '/update-status'}" method="post" th:id="'updateForm' + ${order.id}">
+                                                                        <div class="mb-3">
+                                                                            <label class="form-label">Trạng thái hiện tại:</label>
+                                                                            <span th:switch="${order.status}">
+                                                                                <span th:case="0" class="badge-status badge-pending">Chờ xác nhận</span>
+                                                                                <span th:case="1" class="badge-status badge-processing">Đã xác nhận</span>
+                                                                                <span th:case="2" class="badge-status badge-shipping">Đang giao hàng</span>
+                                                                                <span th:case="3" class="badge-status badge-completed">Đã giao hàng</span>
+                                                                                <span th:case="4" class="badge-status badge-cancelled">Đã hủy</span>
+                                                                            </span>
+                                                                        </div>
+                                                                        <div class="mb-3">
+                                                                            <label for="status" class="form-label">Trạng thái mới:</label>
+                                                                            <select class="form-select" name="status" id="status">
+                                                                                <option value="0" th:selected="${order.status == 0}">Chờ xác nhận</option>
+                                                                                <option value="1" th:selected="${order.status == 1}">Đã xác nhận</option>
+                                                                                <option value="2" th:selected="${order.status == 2}">Đang giao hàng</option>
+                                                                                <option value="3" th:selected="${order.status == 3}">Đã giao hàng</option>
+                                                                                <option value="4" th:selected="${order.status == 4}">Đã hủy</option>
+                                                                            </select>
+                                                                        </div>
+                                                                    </form>
                                                                 </div>
-                                                            </form>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                            <button type="submit" th:form="'updateForm' + ${order.id}" class="btn btn-primary">Cập nhật</button>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                                    <button type="submit" th:form="'updateForm' + ${order.id}" class="btn btn-primary">Cập nhật</button>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            
-                                            <!-- Delete Modal -->
-                                            <div class="modal fade" th:id="'deleteModal' + ${order.id}" tabindex="-1" aria-hidden="true">
-                                                <div class="modal-dialog">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Xác nhận xóa</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                        </div>
-                                                        <div class="modal-body">
-                                                            <p>Bạn có chắc chắn muốn xóa đơn hàng <strong th:text="${order.iOrders}">ORD123456</strong>?</p>
-                                                            <p class="text-danger">Lưu ý: Hành động này không thể hoàn tác!</p>
-                                                        </div>
-                                                        <div class="modal-footer">
-                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                                                            <form th:action="@{'/admin/orders/' + ${order.id} + '/delete'}" method="post">
-                                                                <button type="submit" class="btn btn-danger">Xóa</button>
-                                                            </form>
+                                                    
+                                                    <!-- Delete Modal -->
+                                                    <div class="modal fade" th:id="'deleteModal' + ${order.id}" tabindex="-1" aria-hidden="true">
+                                                        <div class="modal-dialog">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Xác nhận xóa</h5>
+                                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="modal-body">
+                                                                    <p>Bạn có chắc chắn muốn xóa đơn hàng <strong th:text="${order.iOrders}">ORD123456</strong>?</p>
+                                                                    <p class="text-danger">Lưu ý: Hành động này không thể hoàn tác!</p>
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                                                                    <form th:action="@{'/admin/orders/' + ${order.id} + '/delete'}" method="post">
+                                                                        <button type="submit" class="btn btn-danger">Xóa</button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    <tr th:if="${orders == null or orders.isEmpty()}">
-                                        <td colspan="7" class="text-center">Không có đơn hàng nào</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${orders == null or orders.isEmpty()}">
+                                                <td colspan="7" class="text-center">Không có đơn hàng nào</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

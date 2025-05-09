@@ -35,4 +35,5 @@ public class ProductDTO {
     private LocalDateTime updatedDate;
     private List<ProductImagesDTO> productImages;
     private List<MultipartFile> imageFiles; // Thêm field này để xử lý file upload
+    private List<ProductConfigDTO> productConfigs; // Thêm danh sách cấu hình
 } 

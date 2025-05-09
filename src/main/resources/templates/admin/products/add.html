@@ -62,7 +62,6 @@
 <body>
     <div class="wrapper">
         <!-- Sidebar  -->
-        <!-- Sidebar  -->
         <div th:replace="~{admin/fragments/sidebar :: sidebar}"></div>
         <!-- Page Content  -->
         <div class="main-content">
@@ -92,125 +91,85 @@
                         <div class="col-lg-8">
                             <div class="card mb-4">
                                 <div class="card-header">
-                                    Thông tin cơ bản
+                                    <h5 class="card-title mb-0">Thông tin cơ bản</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <label for="productName" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" id="productName" name="name" th:field="*{name}" required>
+                                        <label for="name" class="form-label">Tên sản phẩm <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="name" th:field="*{name}" required>
                                     </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="sku" class="form-label">Mã sản phẩm (SKU)</label>
-                                            <input type="text" class="form-control" id="sku" name="sku">
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="barcode" class="form-label">Mã vạch</label>
-                                            <input type="text" class="form-control" id="barcode" name="barcode">
+                                    <div class="mb-3">
+                                        <label for="idCategory" class="form-label">Danh mục <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="idCategory" th:field="*{idCategory}" required>
+                                            <option value="">Chọn danh mục</option>
+                                            <option th:each="category : ${categories}" 
+                                                    th:value="${category.id}" 
+                                                    th:text="${category.name}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="price" class="form-label">Giá <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control" id="price" th:field="*{price}" min="0" required>
+                                            <span class="input-group-text">VNĐ</span>
                                         </div>
                                     </div>
                                     <div class="mb-3">
-                                        <label for="shortDescription" class="form-label">Mô tả ngắn</label>
-                                        <textarea class="form-control" id="shortDescription" name="notes" th:field="*{notes}" rows="3"></textarea>
+                                        <label for="quantity" class="form-label">Số lượng <span class="text-danger">*</span></label>
+                                        <input type="number" class="form-control" id="quantity" th:field="*{quantity}" min="0" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="notes" class="form-label">Mô tả ngắn</label>
+                                        <textarea class="form-control" id="notes" th:field="*{notes}" rows="3"></textarea>
                                     </div>
                                     <div class="mb-3">
                                         <label for="description" class="form-label">Mô tả chi tiết</label>
-                                        <textarea class="form-control" id="description" name="description" th:field="*{description}" rows="6"></textarea>
+                                        <textarea class="form-control" id="description" th:field="*{description}" rows="6"></textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="isActive" th:field="*{isActive}">
+                                            <label class="form-check-label" for="isActive">Kích hoạt sản phẩm</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="card mb-4">
                                 <div class="card-header">
-                                    Hình ảnh sản phẩm
+                                    <h5 class="card-title mb-0">Thuộc tính sản phẩm</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div th:if="${configurations.empty}" class="alert alert-info">
+                                        Chưa có cấu hình nào được thêm vào.
+                                    </div>
+                                    <div th:each="config : ${configurations}" class="mb-3">
+                                        <label th:for="${'config_' + config.id}" class="form-label" th:text="${config.name}"></label>
+                                        <input type="text" class="form-control" 
+                                               th:id="${'config_' + config.id}"
+                                               th:name="|configValues[${config.id}]|"
+                                               th:placeholder="|Nhập ${config.name}|">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-header">
+                                    <h5 class="card-title mb-0">Hình ảnh sản phẩm</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="form-group">
-                                        <label for="imageFiles">Hình ảnh sản phẩm</label>
+                                        <label for="imageFiles">Hình ảnh sản phẩm <span class="text-danger">*</span></label>
                                         <div class="dropzone" id="imageDropzone">
-                                            <input type="file" name="imageFiles" id="imageFiles" multiple accept="image/*" style="display: none;">
+                                            <input type="file" name="imageFiles" id="imageFiles" multiple accept="image/*" style="display: none;" required>
                                             <div class="dz-message">
                                                 Kéo và thả ảnh vào đây hoặc click để chọn ảnh
                                             </div>
                                             <div id="imagePreviewContainer" class="image-preview-container"></div>
                                         </div>
+                                        <small class="text-muted">Hình ảnh đầu tiên sẽ được sử dụng làm ảnh đại diện</small>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    Biến thể sản phẩm
-                                </div>
-                                <div class="card-body">
-                                    <div class="row mb-4">
-                                        <div class="col-md-6">
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="" id="hasSize">
-                                                <label class="form-check-label" for="hasSize">
-                                                    Sản phẩm có nhiều kích cỡ
-                                                </label>
-                                            </div>
-                                            <select class="form-select" id="sizeOptions" multiple disabled>
-                                                <option value="35">35</option>
-                                                <option value="36">36</option>
-                                                <option value="37">37</option>
-                                                <option value="38">38</option>
-                                                <option value="39">39</option>
-                                                <option value="40">40</option>
-                                                <option value="41">41</option>
-                                                <option value="42">42</option>
-                                                <option value="43">43</option>
-                                                <option value="44">44</option>
-                                                <option value="45">45</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-check mb-2">
-                                                <input class="form-check-input" type="checkbox" value="" id="hasColor">
-                                                <label class="form-check-label" for="hasColor">
-                                                    Sản phẩm có nhiều màu sắc
-                                                </label>
-                                            </div>
-                                            <select class="form-select" id="colorOptions" multiple disabled>
-                                                <option value="black">Đen</option>
-                                                <option value="white">Trắng</option>
-                                                <option value="red">Đỏ</option>
-                                                <option value="blue">Xanh dương</option>
-                                                <option value="green">Xanh lá</option>
-                                                <option value="yellow">Vàng</option>
-                                                <option value="gray">Xám</option>
-                                                <option value="brown">Nâu</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div id="variantsContainer">
-                                        <div class="variant-row">
-                                            <div class="row">
-                                                <div class="col-md-3 mb-2">
-                                                    <label class="form-label">Biến thể</label>
-                                                    <input type="text" class="form-control" value="Mặc định" readonly>
-                                                </div>
-                                                <div class="col-md-3 mb-2">
-                                                    <label class="form-label">Giá</label>
-                                                    <input type="number" class="form-control" placeholder="Giá" min="0">
-                                                </div>
-                                                <div class="col-md-3 mb-2">
-                                                    <label class="form-label">Giá khuyến mãi</label>
-                                                    <input type="number" class="form-control" placeholder="Giá KM" min="0">
-                                                </div>
-                                                <div class="col-md-3 mb-2">
-                                                    <label class="form-label">Số lượng</label>
-                                                    <input type="number" class="form-control" placeholder="Số lượng" min="0">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <button type="button" class="btn btn-outline-primary mt-3" id="generateVariants" disabled>
-                                        <i class="fas fa-sync-alt"></i> Tạo biến thể
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -218,15 +177,21 @@
                         <div class="col-lg-4">
                             <div class="card mb-4">
                                 <div class="card-header">
-                                    Trạng thái
+                                    <h5 class="card-title mb-0">Thông tin SEO</h5>
                                 </div>
                                 <div class="card-body">
                                     <div class="mb-3">
-                                        <select class="form-select" id="productStatus" name="productStatus">
-                                            <option value="active">Hiển thị</option>
-                                            <option value="draft">Nháp</option>
-                                            <option value="hidden">Ẩn</option>
-                                        </select>
+                                        <label for="metaTitle" class="form-label">Meta Title</label>
+                                        <input type="text" class="form-control" id="metaTitle" th:field="*{metaTitle}">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="metaKeyword" class="form-label">Meta Keywords</label>
+                                        <input type="text" class="form-control" id="metaKeyword" th:field="*{metaKeyword}">
+                                        <small class="text-muted">Phân cách các từ khóa bằng dấu phẩy</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="metaDescription" class="form-label">Meta Description</label>
+                                        <textarea class="form-control" id="metaDescription" th:field="*{metaDescription}" rows="3"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -236,16 +201,6 @@
                                     Phân loại
                                 </div>
                                 <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="category" class="form-label">Danh mục <span class="text-danger">*</span></label>
-                                        <div th:if="${warningCategory}" class="alert alert-warning" th:text="${warningCategory}"></div>
-                                        <select class="form-select" id="category" name="idCategory" th:field="*{idCategory}" required>
-                                            <option value="">-- Chọn danh mục --</option>
-                                            <option th:each="category : ${categories}" 
-                                                    th:value="${category.id}" 
-                                                    th:text="${category.name}">Giày thể thao</option>
-                                        </select>
-                                    </div>
                                     <div class="mb-3">
                                         <label for="brand" class="form-label">Thương hiệu</label>
                                         <select class="form-select" id="brand" name="brand">
@@ -262,96 +217,17 @@
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    Giá và tồn kho
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="productPrice" class="form-label">Giá bán <span class="text-danger">*</span></label>
-                                        <div class="input-group">
-                                            <span class="input-group-text">₫</span>
-                                            <input type="number" class="form-control" id="productPrice" name="price" th:field="*{price}" required min="0">
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="productQuantity" class="form-label">Số lượng trong kho</label>
-                                        <input type="number" class="form-control" id="productQuantity" name="quantity" th:field="*{quantity}" min="0">
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    Vận chuyển
-                                </div>
-                                <div class="card-body">
-                                    <div class="mb-3">
-                                        <label for="weight" class="form-label">Cân nặng (gram)</label>
-                                        <input type="number" class="form-control" id="weight" name="weight" min="0">
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-4 mb-3">
-                                            <label for="length" class="form-label">Dài (cm)</label>
-                                            <input type="number" class="form-control" id="length" name="length" min="0">
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label for="width" class="form-label">Rộng (cm)</label>
-                                            <input type="number" class="form-control" id="width" name="width" min="0">
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label for="height" class="form-label">Cao (cm)</label>
-                                            <input type="number" class="form-control" id="height" name="height" min="0">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    Thuộc tính sản phẩm
-                                </div>
-                                <div class="card-body">
-                                    <div th:if="${warningConfig}" class="alert alert-warning" th:text="${warningConfig}"></div>
-                                    <div th:each="config, status : ${configurations}" class="mb-3">
-                                        <label th:for="${'config_' + config.id}" class="form-label" th:text="${config.name}">Size</label>
-                                        <input type="text" class="form-control" th:id="${'config_' + config.id}" th:name="${'config_' + config.id}" th:placeholder="${'Nhập ' + config.name}">
-                                        <small class="form-text text-muted" th:if="${config.notes}" th:text="${config.notes}">Nhập các kích thước, cách nhau bằng dấu phẩy</small>
-                                    </div>
-                                    
-                                    <div th:if="${#lists.isEmpty(configurations)}" class="alert alert-info">
-                                        Chưa có cấu hình nào. Hãy thêm cấu hình trong phần <a th:href="@{/admin/products/config}" class="alert-link">Quản lý cấu hình</a>.
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="card mb-4">
-                                <div class="card-header">
-                                    Trạng thái sản phẩm
-                                </div>
-                                <div class="card-body">
-                                    <div class="form-check mb-3">
-                                        <input class="form-check-input" type="checkbox" value="true" id="isActiveProduct" name="isActive" th:field="*{isActive}" checked>
-                                        <label class="form-check-label" for="isActiveProduct">
-                                            Kích hoạt sản phẩm
-                                        </label>
-                                    </div>
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     
                     <div class="row">
-                        <div class="col-12 mb-4">
-                            <div class="d-flex justify-content-end">
-                                <button type="button" class="btn btn-outline-secondary me-2">Hủy</button>
-                                <button type="button" class="btn btn-outline-primary me-2">Lưu nháp</button>
-                                <button type="submit" class="btn btn-primary">Thêm sản phẩm</button>
-                            </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu sản phẩm
+                            </button>
+                            <a th:href="@{/admin/products/list}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Hủy
+                            </a>
                         </div>
                     </div>
                 </form>
@@ -360,153 +236,86 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.ckeditor.com/ckeditor5/39.0.0/classic/ckeditor.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Sidebar toggle
-            document.getElementById('sidebarCollapse').addEventListener('click', function() {
-                document.querySelector('.sidebar').classList.toggle('active');
-                document.querySelector('.main-content').classList.toggle('active');
-            });
-            
-            // Initialize rich text editor
-            ClassicEditor
-                .create(document.querySelector('#description'))
-                .catch(error => {
-                    console.error(error);
-                });
-                
-            // Toggle variants options
-            document.getElementById('hasSize').addEventListener('change', function() {
-                document.getElementById('sizeOptions').disabled = !this.checked;
-                toggleGenerateVariants();
-            });
-            
-            document.getElementById('hasColor').addEventListener('change', function() {
-                document.getElementById('colorOptions').disabled = !this.checked;
-                toggleGenerateVariants();
-            });
-            
-            function toggleGenerateVariants() {
-                const hasSize = document.getElementById('hasSize').checked;
-                const hasColor = document.getElementById('hasColor').checked;
-                document.getElementById('generateVariants').disabled = !(hasSize || hasColor);
-            }
+        // Xử lý kéo thả và xem trước ảnh
+        const dropzone = document.getElementById('imageDropzone');
+        const fileInput = document.getElementById('imageFiles');
+        const previewContainer = document.getElementById('imagePreviewContainer');
 
-            // Image Upload Handling
-            const dropzone = document.getElementById('imageDropzone');
-            const fileInput = document.getElementById('imageFiles');
-            const previewContainer = document.getElementById('imagePreviewContainer');
-            const maxFileSize = 2 * 1024 * 1024; // 2MB
-            const maxFiles = 10;
-
-            dropzone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropzone.classList.add('dragover');
-            });
-
-            dropzone.addEventListener('dragleave', () => {
-                dropzone.classList.remove('dragover');
-            });
-
-            dropzone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                dropzone.classList.remove('dragover');
-                const files = e.dataTransfer.files;
-                handleFiles(files);
-            });
-
-            dropzone.addEventListener('click', () => {
-                fileInput.click();
-            });
-
-            fileInput.addEventListener('change', (e) => {
-                handleFiles(e.target.files);
-            });
-
-            function handleFiles(files) {
-                if (files.length > maxFiles) {
-                    alert(`Chỉ được chọn tối đa ${maxFiles} ảnh`);
-                    return;
-                }
-
-                Array.from(files).forEach(file => {
-                    if (!file.type.startsWith('image/')) {
-                        alert('Chỉ chấp nhận file ảnh');
-                        return;
-                    }
-
-                    if (file.size > maxFileSize) {
-                        alert('File ảnh không được vượt quá 2MB');
-                        return;
-                    }
-
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const preview = document.createElement('div');
-                        preview.className = 'image-preview';
-                        preview.innerHTML = `
-                            <img src="${e.target.result}" alt="Preview">
-                            <button type="button" class="delete-btn">&times;</button>
-                        `;
-                        previewContainer.appendChild(preview);
-
-                        preview.querySelector('.delete-btn').addEventListener('click', function() {
-                            preview.remove();
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                });
-            }
-
-            // Handle form submission
-            document.getElementById('productForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                const formData = new FormData(this);
-                
-                fetch(this.action, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => {
-                    if (response.redirected) {
-                        window.location.href = response.url;
-                        return;
-                    }
-                    
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    
-                    return response.text().then(text => {
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            return text;
-                        }
-                    });
-                })
-                .then(result => {
-                    if (typeof result === 'string' && result.includes('redirect:')) {
-                        // Nếu server trả về redirect string
-                        window.location.href = result.split('redirect:')[1].trim();
-                    } else if (result.success) {
-                        // Nếu server trả về JSON với success = true
-                        alert('Thêm sản phẩm thành công!');
-                        window.location.href = '/admin/products/list';
-                    } else {
-                        // Xử lý các trường hợp khác
-                        alert(result.message || 'Thêm sản phẩm thành công!');
-                        window.location.href = '/admin/products/list';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Có lỗi xảy ra khi thêm sản phẩm. Vui lòng thử lại!');
-                });
-            });
+        // Ngăn chặn hành vi mặc định của trình duyệt khi kéo thả
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
         });
+
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Thêm class khi kéo file vào
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropzone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropzone.classList.remove('dragover');
+        }
+
+        // Xử lý khi thả file
+        dropzone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        // Xử lý khi click vào dropzone
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        // Xử lý khi chọn file qua input
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        function handleFiles(files) {
+            previewContainer.innerHTML = ''; // Xóa preview cũ
+            [...files].forEach(previewFile);
+        }
+
+        function previewFile(file) {
+            if (!file.type.startsWith('image/')) return;
+            
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onloadend = function() {
+                const div = document.createElement('div');
+                div.className = 'image-preview';
+                
+                const img = document.createElement('img');
+                img.src = reader.result;
+                
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-btn';
+                deleteBtn.innerHTML = '×';
+                deleteBtn.onclick = function() {
+                    div.remove();
+                };
+                
+                div.appendChild(img);
+                div.appendChild(deleteBtn);
+                previewContainer.appendChild(div);
+            }
+        }
     </script>
 </body>
 </html> 

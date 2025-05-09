@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 public class ProductConfigDTO {
     private Long id;
     private Long idConfig;
-    private String configName;
     private Long idProduct;
-    private String productName;
     private String value;
+    private String configName; // Tên cấu hình, không lưu vào DB
+    private String productName;
 } 
