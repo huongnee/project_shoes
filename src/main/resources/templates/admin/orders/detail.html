@@ -91,27 +91,19 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
+                                            <tr th:each="item : ${orderItems}">
                                                 <td>
-                                                    <img src="https://via.placeholder.com/60x60" class="product-img" alt="Product">
+                                                    <img th:if="${item.image != null}" th:src="@{${item.image}}" 
+                                                         class="product-img" style="width: 60px; height: 60px; object-fit: cover;" alt="Product">
+                                                    <img th:if="${item.image == null}" th:src="@{/static/images/no-image.jpg}" 
+                                                         class="product-img" style="width: 60px; height: 60px; object-fit: cover;" alt="No Image">
                                                 </td>
-                                                <td>Giày Nike Air Max 270</td>
-                                                <td>42</td>
-                                                <td>Đen</td>
-                                                <td class="text-end">1,500,000đ</td>
-                                                <td class="text-center">1</td>
-                                                <td class="text-end">1,500,000đ</td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <img src="https://via.placeholder.com/60x60" class="product-img" alt="Product">
-                                                </td>
-                                                <td>Giày Adidas Ultra Boost</td>
-                                                <td>41</td>
-                                                <td>Trắng</td>
-                                                <td class="text-end">1,300,000đ</td>
-                                                <td class="text-center">1</td>
-                                                <td class="text-end">1,300,000đ</td>
+                                                <td th:text="${item.name}">Tên sản phẩm</td>
+                                                <td th:text="${item.size}">Size</td>
+                                                <td th:text="${item.color}">Màu sắc</td>
+                                                <td class="text-end" th:text="${#numbers.formatDecimal(item.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Giá</td>
+                                                <td class="text-center" th:text="${item.quantity}">SL</td>
+                                                <td class="text-end" th:text="${#numbers.formatDecimal(item.price * item.quantity, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">Tổng</td>
                                             </tr>
                                         </tbody>
                                     </table>

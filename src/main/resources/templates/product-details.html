@@ -7,134 +7,350 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" th:href="@{/static/css/styles.css}">
+    <style>
+    .product-section {
+        background-color: #f8f9fa;
+        padding: 40px 0;
+    }
+    .product-main-image {
+        margin-bottom: 20px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        background: white;
+        padding: 20px;
+    }
+    .product-main-image img {
+        width: 100%;
+        height: 450px;
+        object-fit: contain;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+    .product-main-image img:hover {
+        transform: scale(1.02);
+    }
+    .product-gallery {
+        display: flex;
+        gap: 12px;
+        overflow-x: auto;
+        padding: 10px 0;
+        scrollbar-width: thin;
+    }
+    .product-gallery::-webkit-scrollbar {
+        height: 6px;
+    }
+    .product-gallery::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    .product-gallery::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 10px;
+    }
+    .gallery-item {
+        flex: 0 0 auto;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+    .gallery-item:hover {
+        border-color: #0d6efd;
+        transform: translateY(-2px);
+    }
+    .gallery-item img {
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        background: white;
+    }
+    .gallery-item.active {
+        border-color: #0d6efd;
+        box-shadow: 0 2px 8px rgba(13, 110, 253, 0.2);
+    }
+    .product-info {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .product-title {
+        font-size: 2.2rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #2c3e50;
+    }
+    .product-code {
+        color: #6c757d;
+        font-size: 1rem;
+        margin-bottom: 20px;
+    }
+    .product-price {
+        font-size: 2rem;
+        color: #dc3545;
+        font-weight: 700;
+        margin-bottom: 25px;
+    }
+    .product-description {
+        color: #495057;
+        line-height: 1.7;
+        margin-bottom: 25px;
+    }
+    .quantity-input {
+        max-width: 120px;
+        text-align: center;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+        padding: 10px;
+        margin-right: 15px;
+    }
+    .add-to-cart-btn {
+        padding: 12px 25px;
+        font-size: 1.1rem;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    .add-to-cart-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.2);
+    }
+    .category-link {
+        color: #0d6efd;
+        text-decoration: none;
+        font-weight: 500;
+    }
+    .category-link:hover {
+        text-decoration: underline;
+    }
+    .product-tabs {
+        margin-top: 40px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    .nav-tabs {
+        border-bottom: none;
+        padding: 15px 15px 0;
+        background: #f8f9fa;
+    }
+    .nav-tabs .nav-link {
+        border: none;
+        color: #495057;
+        font-weight: 500;
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        transition: all 0.3s ease;
+    }
+    .nav-tabs .nav-link.active {
+        color: #0d6efd;
+        background: white;
+        border-bottom: 3px solid #0d6efd;
+    }
+    .tab-content {
+        padding: 30px;
+    }
+    .specifications-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+    .specifications-table th {
+        background: #f8f9fa;
+        padding: 12px 15px;
+        font-weight: 500;
+        color: #2c3e50;
+    }
+    .specifications-table td {
+        padding: 12px 15px;
+        color: #495057;
+    }
+    .specifications-table tr:hover {
+        background: #f8f9fa;
+    }
+    .related-products {
+        margin-top: 40px;
+    }
+    .related-products h3 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 25px;
+    }
+    .related-product-card {
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .related-product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+    }
+    .related-product-card img {
+        height: 200px;
+        object-fit: cover;
+    }
+    .related-product-card .card-body {
+        padding: 20px;
+    }
+    .related-product-card .card-title {
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #2c3e50;
+    }
+    .related-product-card .card-text {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+    .related-product-card .btn-group {
+        width: 100%;
+        gap: 10px;
+    }
+    </style>
 </head>
 <body>
     <div th:replace="~{fragments/header :: header}"></div>
-
-    <!-- Navigation -->
     <div th:replace="~{fragments/navigation :: navigation}"></div>
 
     <!-- Breadcrumb -->
     <div class="container py-3">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a th:href="@{/}">Trang chủ</a></li>
-                <li class="breadcrumb-item"><a th:href="@{/products}">Sản phẩm</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/}" class="text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/products}" class="text-decoration-none">Sản phẩm</a></li>
                 <li class="breadcrumb-item active" aria-current="page" th:text="${product.name}">Tên sản phẩm</li>
             </ol>
         </nav>
     </div>
 
     <!-- Product Details -->
-    <section class="py-5">
+    <section class="product-section">
         <div class="container">
-            <div class="row">
+            <div class="row g-4">
                 <!-- Product Image -->
-                <div class="col-md-6 mb-4">
-                    <div class="card">
-                        <div class="product-main-image">
-                            <img th:if="${product.image != null}" th:src="@{${product.image}}" th:alt="${product.name}">
-                            <img th:unless="${product.image != null}" src="/static/images/placeholder.jpg" alt="Placeholder">
+                <div class="col-lg-6 mb-4">
+                    <div class="product-main-image">
+                        <img id="main-product-image" th:if="${product.image != null}" th:src="@{${product.image}}" th:alt="${product.name}">
+                        <img id="main-product-image" th:unless="${product.image != null}" src="/static/images/placeholder.jpg" alt="Placeholder">
+                    </div>
+                    <div class="product-gallery">
+                        <div class="gallery-item active" th:if="${product.image != null}" th:data-image="${product.image}">
+                            <img th:src="@{${product.image}}" th:alt="${product.name}">
                         </div>
-                        <div class="product-gallery">
-                            <div th:each="image : ${product.productImages}" class="gallery-item">
-                                <img th:src="@{${image.urlImg}}" th:alt="${image.name}">
-                            </div>
+                        <div th:each="image : ${product.productImages}" class="gallery-item" th:data-image="${image.urlImg}">
+                            <img th:src="@{${image.urlImg}}" th:alt="${image.name}">
                         </div>
                     </div>
                 </div>
                 
                 <!-- Product Info -->
-                <div class="col-md-6">
-                    <h1 th:text="${product.name}">Tên sản phẩm</h1>
-                    <p class="text-muted" th:text="'Mã SP: ' + ${product.id}">Mã SP: 123</p>
-                    
-                    <div class="fs-3 text-danger fw-bold mb-3" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
-                        Giá sản phẩm
-                    </div>
-                    
-                    <p class="mb-4" th:utext="${product.description}">Mô tả sản phẩm...</p>
-                    
-                    <div class="d-flex mb-4">
-                        <input type="number" id="quantity" class="form-control w-25 me-3" value="1" min="1">
-                        <button id="add-to-cart" class="btn btn-primary" th:attr="data-id=${product.id}">
-                            <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
-                        </button>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <strong>Danh mục:</strong> 
-                        <a th:href="@{/products/category/{id}(id=${product.idCategory})}" th:text="${product.idCategory != null ? 'Danh mục ' + product.idCategory : 'N/A'}">
-                            Danh mục
-                        </a>
+                <div class="col-lg-6">
+                    <div class="product-info">
+                        <h1 class="product-title" th:text="${product.name}">Tên sản phẩm</h1>
+                        <p class="product-code" th:text="'Mã SP: ' + ${product.id}">Mã SP: 123</p>
+                        
+                        <div class="product-price" th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                            Giá sản phẩm
+                        </div>
+                        
+                        <div class="product-description" th:utext="${product.description}">
+                            Mô tả sản phẩm...
+                        </div>
+                        
+                        <div class="d-flex align-items-center mb-4">
+                            <input type="number" id="quantity" class="form-control quantity-input" value="1" min="1">
+                            <button id="add-to-cart" class="btn btn-primary add-to-cart-btn" th:attr="data-id=${product.id}">
+                                <i class="fas fa-cart-plus me-2"></i>Thêm vào giỏ hàng
+                            </button>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <strong>Danh mục:</strong> 
+                            <a th:href="@{/products/category/{id}(id=${product.idCategory})}" 
+                               th:text="${product.idCategory != null ? 'Danh mục ' + product.idCategory : 'N/A'}"
+                               class="category-link">
+                                Danh mục
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- Product Content -->
-            <div class="row mt-5">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <ul class="nav nav-tabs card-header-tabs" role="tablist">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#description" role="tab">Mô tả chi tiết</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#specifications" role="tab">Thông số kỹ thuật</a>
-                                </li>
-                            </ul>
+            <div class="product-tabs">
+                <ul class="nav nav-tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-bs-toggle="tab" href="#description" role="tab">
+                            <i class="fas fa-info-circle me-2"></i>Mô tả chi tiết
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-bs-toggle="tab" href="#specifications" role="tab">
+                            <i class="fas fa-cogs me-2"></i>Thông số kỹ thuật
+                        </a>
+                    </li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="description" role="tabpanel">
+                        <div th:utext="${product.contents}" class="product-description">
+                            Nội dung chi tiết sản phẩm...
                         </div>
-                        <div class="card-body">
-                            <div class="tab-content">
-                                <div class="tab-pane fade show active" id="description" role="tabpanel">
-                                    <div th:utext="${product.contents}">
-                                        Nội dung chi tiết sản phẩm...
-                                    </div>
-                                </div>
-                                <div class="tab-pane fade" id="specifications" role="tabpanel">
-                                    <div class="table-responsive" th:if="${product.productConfigs != null and not #lists.isEmpty(product.productConfigs)}">
-                                        <table class="table table-striped">
-                                            <tbody>
-                                                <tr th:each="config : ${product.productConfigs}">
-                                                    <th style="width: 30%;" th:text="${config.configName}">Tên cấu hình</th>
-                                                    <td th:text="${config.value}">Giá trị</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                    <div th:if="${product.productConfigs == null or #lists.isEmpty(product.productConfigs)}" 
-                                         class="alert alert-info">
-                                        Sản phẩm chưa có thông số kỹ thuật
-                                    </div>
-                                </div>
-                            </div>
+                    </div>
+                    <div class="tab-pane fade" id="specifications" role="tabpanel">
+                        <div class="table-responsive" th:if="${product.productConfigs != null and not #lists.isEmpty(product.productConfigs)}">
+                            <table class="table specifications-table">
+                                <tbody>
+                                    <tr th:each="config : ${product.productConfigs}">
+                                        <th style="width: 30%;" th:text="${config.configName}">Tên cấu hình</th>
+                                        <td th:text="${config.value}">Giá trị</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div th:if="${product.productConfigs == null or #lists.isEmpty(product.productConfigs)}" 
+                             class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>Sản phẩm chưa có thông số kỹ thuật
                         </div>
                     </div>
                 </div>
             </div>
             
             <!-- Related Products -->
-            <div class="row mt-5" th:if="${relatedProducts != null and !relatedProducts.isEmpty()}">
-                <div class="col-12">
-                    <h3 class="mb-4">Sản phẩm liên quan</h3>
-                </div>
-                
-                <div th:each="relProduct : ${relatedProducts}" th:if="${relProduct.id != product.id}" class="col-md-3 mb-4">
-                    <div class="card h-100">
-                        <img th:if="${relProduct.image != null}" th:src="@{/static/images/products/{img}(img=${relProduct.image})}" 
-                             class="card-img-top" alt="Product Image">
-                        <img th:if="${relProduct.image == null}" th:src="@{/static/images/no-image.jpg}" 
-                             class="card-img-top" alt="No Image">
-                        <div class="card-body">
-                            <h5 class="card-title" th:text="${relProduct.name}">Tên sản phẩm</h5>
-                            <p class="card-text text-danger fw-bold" th:text="${#numbers.formatDecimal(relProduct.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
-                                Giá sản phẩm
-                            </p>
-                            <a th:href="@{/products/{id}(id=${relProduct.id})}" class="btn btn-primary">Xem chi tiết</a>
-                            <button class="btn btn-success add-to-cart" th:attr="data-id=${relProduct.id}">
-                                <i class="fas fa-cart-plus"></i>
-                            </button>
+            <div class="related-products" th:if="${relatedProducts != null and !relatedProducts.isEmpty()}">
+                <h3><i class="fas fa-link me-2"></i>Sản phẩm liên quan</h3>
+                <div class="row g-4">
+                    <div th:each="relProduct : ${relatedProducts}" 
+                         th:if="${relProduct.id != product.id}" 
+                         class="col-md-3">
+                        <div class="card related-product-card h-100">
+                            <img th:if="${relProduct.image != null}" 
+                                 th:src="${relProduct.image}" 
+                                 class="card-img-top" alt="Product Image">
+                            <img th:if="${relProduct.image == null}" 
+                                 th:src="@{/static/images/no-image.jpg}" 
+                                 class="card-img-top" alt="No Image">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title" th:text="${relProduct.name}">Tên sản phẩm</h5>
+                                <p class="card-text text-danger fw-bold" 
+                                   th:text="${#numbers.formatDecimal(relProduct.price, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'">
+                                    Giá sản phẩm
+                                </p>
+                                <div class="btn-group mt-auto">
+                                    <a th:href="@{/products/{id}(id=${relProduct.id})}" 
+                                       class="btn btn-outline-primary">
+                                        <i class="fas fa-eye me-1"></i>Chi tiết
+                                    </a>
+                                    <button class="btn btn-primary add-to-cart" 
+                                            th:attr="data-id=${relProduct.id}">
+                                        <i class="fas fa-cart-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -142,44 +358,33 @@
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-4">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>Thông tin liên hệ</h5>
-                    <p>Địa chỉ: 123 Đường ABC, Quận XYZ, TP. HCM</p>
-                    <p>Email: contact@shopgiay.com</p>
-                    <p>Hotline: 0123 456 789</p>
-                </div>
-                <div class="col-md-4">
-                    <h5>Hỗ trợ khách hàng</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="#" class="text-white">Chính sách đổi trả</a></li>
-                        <li><a href="#" class="text-white">Hướng dẫn mua hàng</a></li>
-                        <li><a href="#" class="text-white">Phương thức thanh toán</a></li>
-                        <li><a href="#" class="text-white">Phương thức vận chuyển</a></li>
-                    </ul>
-                </div>
-                <div class="col-md-4">
-                    <h5>Kết nối với chúng tôi</h5>
-                    <div class="social-links">
-                        <a href="#" class="text-white me-2"><i class="fab fa-facebook-f fa-lg"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-instagram fa-lg"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-twitter fa-lg"></i></a>
-                        <a href="#" class="text-white me-2"><i class="fab fa-youtube fa-lg"></i></a>
-                    </div>
-                </div>
-            </div>
-            <hr>
-            <div class="text-center">
-                <p>&copy; 2023 Shop Giày. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script th:src="@{/static/js/main.js}"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Xử lý click vào ảnh trong gallery
+        document.querySelectorAll('.gallery-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const imageUrl = this.getAttribute('data-image');
+                document.getElementById('main-product-image').src = imageUrl;
+                
+                // Cập nhật trạng thái active
+                document.querySelectorAll('.gallery-item').forEach(galleryItem => {
+                    galleryItem.classList.remove('active');
+                });
+                this.classList.add('active');
+            });
+        });
+
+        // Xử lý số lượng sản phẩm
+        const quantityInput = document.getElementById('quantity');
+        quantityInput.addEventListener('change', function() {
+            if (this.value < 1) this.value = 1;
+        });
+    });
+    </script>
 </body>
 </html> 

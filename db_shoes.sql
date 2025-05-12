@@ -605,3 +605,22 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- Tạo bảng admin_users
+CREATE TABLE IF NOT EXISTS `admin_users` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `is_active` bit(1) DEFAULT b'1',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Thêm tài khoản admin mặc định
+INSERT INTO `admin_users` (`username`, `password`, `name`, `email`, `is_active`) 
+VALUES ('admin', '$2a$10$3YGP.cZ/TRmqwqVjxNUQXevYWZnuQEEUWIQs.T73RLWvJc/p/IjL6', 'Administrator', 'admin@example.com', b'1');
+
+-- Mật khẩu mặc định là: admin123

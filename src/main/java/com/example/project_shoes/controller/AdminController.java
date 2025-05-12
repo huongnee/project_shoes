@@ -1098,7 +1098,19 @@ public String editProduct(@PathVariable Long id, Model model) {
     try {
         ProductDTO product = productService.findById(id);
         if (product == null) {
-            throw new RuntimeException("Không tìm thấy sản phẩm với ID: " + id);
+            model.addAttribute("error", "Không tìm thấy sản phẩm với ID: " + id);
+            return "admin/products/list";
+        }
+
+        // Khởi tạo các danh sách rỗng nếu null
+        if (product.getProductImages() == null) {
+            product.setProductImages(new ArrayList<>());
+        }
+        if (product.getProductConfigs() == null) {
+            product.setProductConfigs(new ArrayList<>());
+        }
+        if (product.getCategoryName() == null) {
+            product.setCategoryName("");
         }
         
         // Lấy danh sách danh mục để hiển thị trong dropdown
@@ -1109,10 +1121,22 @@ public String editProduct(@PathVariable Long id, Model model) {
         model.addAttribute("product", product);
         model.addAttribute("categories", categories);
         model.addAttribute("configurations", configurations);
+        
         return "admin/products/edit";
     } catch (Exception e) {
+        e.printStackTrace();
+        // Thử lấy lại danh sách cơ bản nếu có lỗi
+        try {
+            List<CategoryDTO> categories = categoryService.findAllActive();
+            List<ConfigurationsDTO> configurations = configurationsService.findAllActive();
+            model.addAttribute("categories", categories);
+            model.addAttribute("configurations", configurations);
+        } catch (Exception ex) {
+            // Bỏ qua nếu không lấy được danh sách
+        }
+        
         model.addAttribute("error", "Có lỗi xảy ra khi tải thông tin sản phẩm: " + e.getMessage());
-        return "redirect:/admin/products/list";
+        return "admin/products/edit"; // Vẫn ở lại trang edit thay vì redirect
     }
 }
 
@@ -1128,6 +1152,11 @@ public String updateProduct(@PathVariable Long id, @ModelAttribute ProductDTO pr
         productDTO.setId(id);
         productDTO.setUpdatedDate(LocalDateTime.now());
         productDTO.setUpdatedBy(1L);
+        productDTO.setIsDelete(false); // Đảm bảo isDelete luôn là false
+        
+        // Giữ lại các giá trị từ sản phẩm cũ
+        productDTO.setCreatedBy(existingProduct.getCreatedBy());
+        productDTO.setCreatedDate(existingProduct.getCreatedDate());
         
         // Giữ lại ảnh cũ nếu không có ảnh mới
         if (productDTO.getImageFiles() == null || productDTO.getImageFiles().isEmpty() 
@@ -1148,35 +1177,26 @@ public String updateProduct(@PathVariable Long id, @ModelAttribute ProductDTO pr
             // Xử lý từng file
             for (MultipartFile file : productDTO.getImageFiles()) {
                 if (!file.isEmpty()) {
-                    // Lấy tên file gốc và làm sạch nó
                     String originalFilename = file.getOriginalFilename();
                     String cleanedFilename = originalFilename.replaceAll("[^a-zA-Z0-9.-]", "_");
-                    String extension = cleanedFilename.substring(cleanedFilename.lastIndexOf("."));
-                    
-                    // Tạo tên file mới bằng cách thêm timestamp để tránh trùng lặp
                     String newFileName = System.currentTimeMillis() + "_" + cleanedFilename;
                     
-                    // Lưu file
                     Path filePath = uploadPath.resolve(newFileName);
                     Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
                     
-                    // Đường dẫn URL cho ảnh
                     String imageUrl = "/static/images/products/" + newFileName;
                     
-                    // Tạo ProductImagesDTO với đường dẫn đúng
                     ProductImagesDTO imageDTO = new ProductImagesDTO();
-                    imageDTO.setName(originalFilename); // Lưu tên gốc
+                    imageDTO.setName(originalFilename);
                     imageDTO.setUrlImg(imageUrl);
                     productImages.add(imageDTO);
                     
-                    // Đặt ảnh đại diện cho sản phẩm (ảnh đầu tiên)
                     if (productDTO.getImage() == null) {
                         productDTO.setImage(imageUrl);
                     }
                 }
             }
             
-            // Gán danh sách ảnh cho sản phẩm
             if (!productImages.isEmpty()) {
                 productDTO.setProductImages(productImages);
             }

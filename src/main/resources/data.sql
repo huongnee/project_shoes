@@ -48,4 +48,10 @@ CREATE TABLE IF NOT EXISTS cart_item (
 );
 
 -- Thêm cột STATUS vào bảng orders nếu chưa tồn tại
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS STATUS INT NOT NULL DEFAULT 0 AFTER PHONE; 
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS STATUS INT NOT NULL DEFAULT 0 AFTER PHONE;
+
+-- Thêm tài khoản admin mặc định
+INSERT INTO `admin_users` (`id`, `username`, `password`, `name`, `email`, `is_active`) 
+VALUES (1, 'admin', '$2a$10$3YGP.cZ/TRmqwqVjxNUQXevYWZnuQEEUWIQs.T73RLWvJc/p/IjL6', 'Administrator', 'admin@example.com', 1);
+
+-- Mật khẩu mặc định là: admin123 
